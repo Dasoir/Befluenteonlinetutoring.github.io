@@ -941,7 +941,7 @@ function generateCalendar(year, month) {
   }
 }
 
-unction selectDate(year, month, day) {
+function selectDate(year, month, day) {
   selectedDate = new Date(year, month, day);
   const monthNames = currentLang === 'es' ? ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'] : ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
   const monthStr = monthNames[month];
