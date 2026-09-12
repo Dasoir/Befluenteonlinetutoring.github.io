@@ -1,10 +1,34 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Befluente - Tutoría Personalizada</title>
+<title>Befluente - Tutoría Personalizada en Línea</title>
+
+<!-- ==================== SEO OPTIMIZATION ==================== -->
+<meta name="description" content="Befluente ofrece tutoría personalizada en línea en inglés, español, francés, matemáticas, edición de video (Final Cut Pro, Premiere, DaVinci) y habilidades de entrevista. Reserva tu clase hoy.">
+<meta name="keywords" content="tutor en línea, clases de matemáticas, tutor de inglés, clases de edición de video, Final Cut Pro tutor, DaVinci Resolve tutor, tutor Guatemala, befluente, aprendizaje personalizado">
+<meta name="author" content="Befluente">
+<meta property="og:title" content="Befluente - Tutoría Personalizada en Línea">
+<meta property="og:description" content="Domina nuevas habilidades con clases personalizadas 1 a 1. Idiomas, Matemáticas, Edición de Video y más.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://dasoir.github.io/Befluenteonlinetutoring.github.io/">
+<meta property="og:image" content="https://dasoir.github.io/Befluenteonlinetutoring.github.io/og-image.jpg">
+
+<!-- JSON-LD Structured Data for SEO (Helps Google rank you as a Tutor/Educational Business) -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "EducationalOrganization",
+  "name": "Befluente Online Tutoring",
+  "url": "https://dasoir.github.io/Befluenteonlinetutoring.github.io/",
+  "email": "thewriterds@gmail.com",
+  "description": "Tutoría personalizada en línea en idiomas, matemáticas, edición de video y habilidades profesionales.",
+  "areaServed": "Global",
+  "knowsAbout": ["English", "Spanish", "French", "Mathematics", "Final Cut Pro", "Adobe Premiere", "DaVinci Resolve", "Lighting", "Interview Skills"]
+}
+</script>
+
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
   /* ==================== RESET & BASE ==================== */
@@ -21,6 +45,7 @@
     --text-muted: #6c6c80;
     --border-subtle: #1e1e2e;
     --accent-gold: #d4a843;
+    --whatsapp-green: #25D366;
   }
 
   body {
@@ -61,14 +86,33 @@
     transition: all 0.3s;
   }
 
-  .lang-btn.active {
-    background: var(--blue-primary);
+  .lang-btn.active { background: var(--blue-primary); color: white; }
+  .lang-btn:hover:not(.active) { color: var(--text-white); }
+
+  /* ==================== WHATSAPP FLOATING BUTTON ==================== */
+  .whatsapp-float {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    background-color: var(--whatsapp-green);
     color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(37, 211, 102, 0.4);
+    z-index: 1000;
+    transition: transform 0.3s, box-shadow 0.3s;
   }
 
-  .lang-btn:hover:not(.active) {
-    color: var(--text-white);
+  .whatsapp-float:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 16px rgba(37, 211, 102, 0.6);
   }
+
+  .whatsapp-float svg { width: 32px; height: 32px; fill: white; }
 
   /* ==================== HERO SECTION ==================== */
   .hero {
@@ -125,87 +169,14 @@
     position: relative;
   }
 
-  .tablet-logo-area { text-align: center; z-index: 1; }
-  
-  .tablet-logo-text {
-    font-size: clamp(24px, 4vw, 36px);
-    font-weight: 700;
-    color: var(--accent-gold);
-    letter-spacing: 1px;
-    margin-top: 10px;
-  }
-
-  .tablet-logo-sub {
-    font-size: 11px;
-    color: var(--text-gray);
-    letter-spacing: 5px;
-    text-transform: uppercase;
-    margin-top: 6px;
-  }
-
-  .tablet-header-bar {
+  .tablet-screen iframe {
     position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 44px;
-    background: rgba(15,15,25,0.95);
-    backdrop-filter: blur(10px);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 18px;
-    font-size: 13px;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
-    z-index: 10;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    border: none;
+    border-radius: 24px;
+    z-index: 5;
   }
-
-  .brand { display: flex; align-items: center; gap: 10px; font-weight: 600; }
-  .brand-dot {
-    width: 26px; height: 26px;
-    background: var(--blue-primary);
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-  }
-
-  .side-controls {
-    position: absolute;
-    right: 16px;
-    top: 50%;
-    transform: translateY(-50%);
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-    z-index: 10;
-  }
-
-  .side-btn {
-    width: 36px; height: 36px;
-    border-radius: 50%;
-    border: 1px solid rgba(255,255,255,0.15);
-    background: rgba(20,20,35,0.7);
-    color: #fff;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 14px;
-    backdrop-filter: blur(4px);
-  }
-
-  .progress-bar-container {
-    position: absolute;
-    bottom: 0; left: 0; right: 0;
-    height: 40px;
-    background: rgba(15,15,25,0.95);
-    display: flex;
-    align-items: center;
-    padding: 0 18px;
-    gap: 12px;
-    z-index: 10;
-    border-top: 1px solid rgba(255,255,255,0.05);
-  }
-
-  .play-icon { width: 24px; height: 24px; fill: white; opacity: 0.9; }
-  .track { flex: 1; height: 3px; background: rgba(255,255,255,0.1); border-radius: 2px; position: relative; }
-  .fill { width: 35%; height: 100%; background: var(--blue-primary); border-radius: 2px; }
-  .time-label { font-size: 11px; color: var(--text-gray); font-variant-numeric: tabular-nums; }
-  .vimeo-badge { font-size: 11px; color: var(--text-gray); font-weight: 700; letter-spacing: 0.5px; margin-left: auto; }
 
   /* ==================== WAVE DIVIDERS ==================== */
   .wave-divider {
@@ -337,7 +308,15 @@
   .tool-card svg { width: 52px; height: 52px; margin-bottom: 16px; }
   .tool-card span { display: block; font-size: 15px; font-weight: 600; }
 
-  .subjects-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(95px, 1fr)); gap: 14px; }
+  .subjects-grid { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); 
+    gap: 14px;
+    justify-content: center;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
   .subject-card {
     background: var(--bg-card);
     border: 1px solid var(--border-subtle);
@@ -585,6 +564,7 @@
   .especialista-section { padding: 80px 20px 120px; text-align: center; background: var(--bg-dark); }
   .pre-title { color: var(--text-gray); font-size: 16px; margin-bottom: 16px; font-weight: 500; }
   .especialista-section h2 { font-size: clamp(32px, 5vw, 48px); font-weight: 800; margin-bottom: 36px; letter-spacing: -0.02em; }
+  
   .btn-get-started {
     display: inline-flex; align-items: center; gap: 10px; background: var(--blue-primary); color: white; border: none; padding: 16px 36px; border-radius: 12px; font-size: 16px; font-weight: 600; transition: background 0.3s, transform 0.2s;
   }
@@ -610,6 +590,8 @@
     .email-form button { border-radius: 0; padding: 16px; }
     .programa-card { padding: 24px; }
     .programa-progress { width: 100%; justify-content: space-between; margin-top: 10px; }
+    .whatsapp-float { width: 50px; height: 50px; bottom: 20px; right: 20px; }
+    .whatsapp-float svg { width: 26px; height: 26px; }
   }
 </style>
 </head>
@@ -621,51 +603,23 @@
   <button class="lang-btn" onclick="setLanguage('en')" id="btn-en">EN</button>
 </div>
 
+<!-- ==================== WHATSAPP FLOATING BUTTON ==================== -->
+<a href="https://wa.me/50231079131" target="_blank" class="whatsapp-float" aria-label="Chat on WhatsApp">
+  <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+</a>
+
 <!-- ==================== HERO ==================== -->
 <section class="hero">
   <h1 data-i18n="hero_title">Tutoría personalizada, diseñada para ti</h1>
   <p data-i18n="hero_desc">Eleva tu aprendizaje directamente conmigo a tu ritmo, con clases individuales y un plan adaptado a tus objetivos.</p>
-     <div class="tablet-wrapper">
+  <div class="tablet-wrapper">
     <div class="tablet">
       <div class="tablet-screen">
         <iframe 
           src="https://player.vimeo.com/video/1224695185?title=0&byline=0&portrait=0&badge=0&autopause=0" 
-          style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; border-radius: 24px;" 
           allow="autoplay; fullscreen; picture-in-picture" 
           allowfullscreen>
         </iframe>
-      </div>
-    </div>
-  </div>
-        <div class="tablet-logo-area">
-          <svg viewBox="0 0 120 120" width="clamp(80px, 15vw, 130px)" height="clamp(80px, 15vw, 130px)" fill="none">
-            <circle cx="60" cy="60" r="48" stroke="#3b5bdb" stroke-width="2"/>
-            <ellipse cx="60" cy="60" rx="28" ry="48" stroke="#3b5bdb" stroke-width="1.5"/>
-            <line x1="12" y1="60" x2="108" y2="60" stroke="#3b5bdb" stroke-width="1"/>
-            <line x1="20" y1="38" x2="100" y2="38" stroke="#3b5bdb" stroke-width="0.8"/>
-            <line x1="20" y1="82" x2="100" y2="82" stroke="#3b5bdb" stroke-width="0.8"/>
-            <rect x="50" y="32" width="20" height="32" rx="10" fill="#d4a843"/>
-            <path d="M42 58 C42 70, 78 70, 78 58" stroke="#d4a843" stroke-width="3" fill="none"/>
-            <line x1="60" y1="65" x2="60" y2="76" stroke="#d4a843" stroke-width="3"/>
-            <line x1="50" y1="76" x2="70" y2="76" stroke="#d4a843" stroke-width="3"/>
-          </svg>
-          <div class="tablet-logo-text">Befluente</div>
-          <div class="tablet-logo-sub" data-i18n="tablet_subtitle">ONLINE TUTORING</div>
-        </div>
-        <div class="side-controls">
-          <button class="side-btn" aria-label="Like">♡</button>
-          <button class="side-btn" aria-label="Info"></button>
-          <button class="side-btn" aria-label="Share">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-          </button>
-          <button class="side-btn" aria-label="Code">&lt;/&gt;</button>
-        </div>
-        <div class="progress-bar-container">
-          <svg class="play-icon" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-          <div class="track"><div class="fill"></div></div>
-          <span class="time-label">00:34</span>
-          <span class="vimeo-badge">vimeo</span>
-        </div>
       </div>
     </div>
   </div>
@@ -801,6 +755,11 @@
     <div class="subject-card"><svg viewBox="0 0 48 48"><path d="M8 12 C8 8, 12 6, 16 6 H32 C36 6, 40 8, 40 12 V28 C40 32, 36 34, 32 34 L20 34 L12 42 L14 34 C10 32, 8 30, 8 28 Z"/><text x="24" y="26" text-anchor="middle" font-size="13" font-weight="bold" fill="currentColor" font-family="sans-serif">FR</text></svg><span>French</span></div>
     <div class="subject-card"><svg viewBox="0 0 48 48"><rect x="12" y="6" width="24" height="36" rx="3"/><line x1="17" y1="14" x2="31" y2="14"/><line x1="17" y1="20" x2="31" y2="20"/><line x1="17" y1="26" x2="27" y2="26"/><line x1="17" y1="32" x2="31" y2="32"/></svg><span>Screenwriting</span></div>
     <div class="subject-card"><svg viewBox="0 0 48 48"><circle cx="18" cy="16" r="5"/><path d="M10 34 C10 28, 14 24, 18 24 C22 24, 26 28, 26 34"/><circle cx="32" cy="18" r="4"/><path d="M26 34 C26 30, 29 27, 32 27 C35 27, 38 30, 38 34"/></svg><span>Interview Skills</span></div>
+    <div class="subject-card"><svg viewBox="0 0 48 48"><path d="M8 6h32v4H8V6zm0 8h32v4H8v-4zm0 8h32v4H8v-4zm0 8h32v4H8v-4z" stroke="currentColor" fill="none" stroke-width="2"/><rect x="12" y="30" width="24" height="12" rx="2" fill="currentColor" opacity="0.3"/></svg><span>Test Prep</span></div>
+    <div class="subject-card"><svg viewBox="0 0 48 48"><path d="M24 4L4 14v20l20 10 20-10V14L24 4z" stroke="currentColor" fill="none" stroke-width="2"/><path d="M24 24l10-5M24 24l-10-5M24 24v11" stroke="currentColor" stroke-width="2"/></svg><span>Writing</span></div>
+    <div class="subject-card"><svg viewBox="0 0 48 48"><rect x="8" y="8" width="32" height="32" rx="4" stroke="currentColor" fill="none" stroke-width="2"/><path d="M16 20h16M16 28h12" stroke="currentColor" stroke-width="2"/><circle cx="32" cy="16" r="4" fill="currentColor"/></svg><span>Literature</span></div>
+    <div class="subject-card"><svg viewBox="0 0 48 48"><rect x="10" y="6" width="28" height="36" rx="4" stroke="currentColor" fill="none" stroke-width="2"/><path d="M18 14h12M18 22h12M18 30h8" stroke="currentColor" stroke-width="2"/><circle cx="24" cy="38" r="3" fill="currentColor"/></svg><span>Computer Science</span></div>
+    <div class="subject-card"><svg viewBox="0 0 48 48"><path d="M24 4 L24 14 M18 10 L30 10 M24 14 L14 24 L14 38 Q14 44 24 44 Q34 44 34 38 L34 24 Z" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="24" cy="34" r="3" fill="currentColor"/></svg><span>Lighting</span></div>
   </div>
 </section>
 
@@ -876,6 +835,15 @@
           <p data-i18n="app_cc_desc">Edición de video rápida para redes sociales. Perfecto para TikTok, Instagram y YouTube.</p>
           <span class="level" data-i18n="level_beg">Principiante</span>
         </div>
+        <div class="slider-card">
+          <svg viewBox="0 0 64 64">
+            <rect x="8" y="8" width="48" height="48" rx="8" fill="#1a1a2e" stroke="#333" stroke-width="1.5"/>
+            <text x="32" y="38" text-anchor="middle" font-size="24" font-weight="bold" fill="#31a8ff" font-family="sans-serif">Lr</text>
+          </svg>
+          <h3>Adobe Lightroom</h3>
+          <p>Edición de fotos y corrección de color. Organiza, edita y mejora tus fotografías profesionalmente.</p>
+          <span class="level">Todos los niveles</span>
+        </div>
       </div>
     </div>
     <div class="slider-controls">
@@ -909,29 +877,40 @@
   <div class="no-results" data-i18n="no_results">No results</div>
 </section>
 
-<!-- ==================== BOOKING CALENDAR ==================== -->
+<!-- ==================== BOOKING CALENDAR (WITH PAYPAL & LEAD CAPTURE) ==================== -->
 <section class="booking-section" id="booking">
   <h2 data-i18n="booking_title">Reserva tu clase</h2>
   <p class="booking-subtitle" data-i18n="booking_subtitle">Selecciona una fecha y hora que te funcione</p>
   
-  <div class="calendar-container">
-    <div class="calendar-left">
-      <div class="calendar-header">
-        <button class="calendar-nav" id="prevMonth">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
-        </button>
-        <h3 class="calendar-month" id="currentMonth"></h3>
-        <button class="calendar-nav" id="nextMonth">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-        </button>
-      </div>
-      <div class="calendar-grid" id="calendarGrid"></div>
-    </div>
+  <!-- FormSubmit captures the lead and sends it to your email. _next redirects to PayPal after submission. -->
+  <form class="booking-form" id="bookingForm" action="https://formsubmit.co/thewriterds@gmail.com" method="POST" onsubmit="return handleBooking(event)">
+    <input type="hidden" name="_subject" value="New Booking Request - Befluente">
+    <input type="hidden" name="_captcha" value="false">
+    <input type="hidden" name="_template" value="table">
+    <!-- IMPORTANT: Replace 'thewriterds' below with your actual PayPal.me username if different -->
+    <input type="hidden" name="_next" value="https://paypal.me/thewriterds">
     
-    <div class="booking-form">
+    <!-- Hidden fields to send booking details to your email -->
+    <input type="hidden" name="Selected_Date" id="formDate">
+    <input type="hidden" name="Selected_Time" id="formTime">
+
+    <div class="calendar-container" style="border: none; padding: 0; background: transparent; display: block;">
+      <div class="calendar-left" style="margin-bottom: 30px;">
+        <div class="calendar-header">
+          <button type="button" class="calendar-nav" id="prevMonth">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <h3 class="calendar-month" id="currentMonth"></h3>
+          <button type="button" class="calendar-nav" id="nextMonth">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+        <div class="calendar-grid" id="calendarGrid" style="background: var(--bg-card); padding: 20px; border-radius: 20px; border: 1px solid var(--border-subtle);"></div>
+      </div>
+      
       <div class="form-group">
         <label data-i18n="booking_date_label">Fecha seleccionada</label>
-        <input type="text" id="selectedDate" data-i18n-placeholder="booking_date_placeholder" placeholder="Selecciona una fecha" readonly>
+        <input type="text" id="selectedDate" data-i18n-placeholder="booking_date_placeholder" placeholder="Selecciona una fecha" readonly required>
       </div>
       <div class="form-group">
         <label data-i18n="booking_time_label">Hora disponible</label>
@@ -946,51 +925,66 @@
       </div>
       <div class="form-group">
         <label for="studentName" data-i18n="booking_name_label">Tu nombre</label>
-        <input type="text" id="studentName" data-i18n-placeholder="booking_name_placeholder" placeholder="Ingresa tu nombre completo">
+        <input type="text" id="studentName" name="Name" data-i18n-placeholder="booking_name_placeholder" placeholder="Ingresa tu nombre completo" required>
       </div>
       <div class="form-group">
         <label for="studentEmail" data-i18n="booking_email_label">Correo electrónico</label>
-        <input type="email" id="studentEmail" data-i18n-placeholder="booking_email_placeholder" placeholder="tu@email.com">
+        <input type="email" id="studentEmail" name="Email" data-i18n-placeholder="booking_email_placeholder" placeholder="tu@email.com" required>
       </div>
       <div class="form-group">
         <label for="subjectSelect" data-i18n="booking_subject_label">Materia / App a aprender</label>
-        <select id="subjectSelect">
+        <select id="subjectSelect" name="Subject" required>
           <option value="" data-i18n="booking_subject_default">Selecciona una opción</option>
           <option value="final-cut">Final Cut Pro</option>
           <option value="premiere">Adobe Premiere Pro</option>
           <option value="after-effects">After Effects</option>
           <option value="davinci">DaVinci Resolve</option>
-          <option value="LightRoom">Lightroom</option>
+          <option value="photoshop">Photoshop</option>
+          <option value="lightroom">Adobe Lightroom</option>
           <option value="capcut">CapCut</option>
           <option value="english" data-i18n="booking_subject_english">Inglés</option>
           <option value="math" data-i18n="booking_subject_math">Matemáticas</option>
+          <option value="lighting">Lighting</option>
           <option value="other" data-i18n="booking_subject_other">Otro</option>
         </select>
       </div>
       <div class="form-group">
         <label for="message" data-i18n="booking_message_label">Mensaje (opcional)</label>
-        <textarea id="message" rows="3" data-i18n-placeholder="booking_message_placeholder" placeholder="Cuéntame qué te gustaría aprender..."></textarea>
+        <textarea id="message" name="Message" rows="3" data-i18n-placeholder="booking_message_placeholder" placeholder="Cuéntame qué te gustaría aprender..."></textarea>
       </div>
-      <button class="btn-book" onclick="bookClass()" data-i18n="booking_btn">Reservar Clase</button>
+      <button type="submit" class="btn-book" data-i18n="booking_btn">Reservar y Pagar con PayPal</button>
     </div>
-  </div>
+  </form>
 </section>
 
-<!-- ==================== ¿LISTO PARA COMENZAR? ==================== -->
+<!-- ==================== ¿LISTO PARA COMENZAR? (LEAD CAPTURE) ==================== -->
 <section class="cta-section">
   <h2 data-i18n="cta_title">¿Listo para comenzar?</h2>
   <p class="cta-desc" data-i18n="cta_desc">Ingresa tu correo electrónico para obtener acceso anticipado. Nuestro equipo se pondrá en contacto contigo para ofrecerte una orientación personalizada.</p>
-  <form class="email-form" onsubmit="event.preventDefault(); alert(translations[currentLang].cta_success);">
-    <input type="email" data-i18n-placeholder="cta_placeholder" placeholder="E-mail address" required>
+  <!-- This form also sends to your email, building your lead list -->
+  <form class="email-form" action="https://formsubmit.co/thewriterds@gmail.com" method="POST">
+    <input type="hidden" name="_subject" value="New Lead: Early Access Request">
+    <input type="hidden" name="_captcha" value="false">
+    <input type="hidden" name="_next" value="https://dasoir.github.io/Befluenteonlinetutoring.github.io/">
+    <input type="email" name="email" data-i18n-placeholder="cta_placeholder" placeholder="E-mail address" required>
     <button type="submit" data-i18n="cta_btn">Join us now!</button>
   </form>
 </section>
 
-<!-- ==================== CONVIÉRTETE EN ESPECIALISTA ==================== -->
+<!-- ==================== CONVIÉRTETE EN ESPECIALISTA (WHATSAPP & EMAIL) ==================== -->
 <section class="especialista-section">
   <p class="pre-title" data-i18n="especialista_pre">Todo un mundo de conocimiento</p>
   <h2 data-i18n="especialista_title">Conviértete en especialista</h2>
-  <button class="btn-get-started" data-i18n="especialista_btn">Get started now <span>→</span></button>
+  <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-top: 20px;">
+    <a href="https://wa.me/50231079131?text=Hola,%20me%20interesa%20convertirme%20en%20especialista%20con%20Befluente" target="_blank" class="btn-get-started" style="background-color: #25D366;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      <span data-i18n="contact_whatsapp">WhatsApp</span>
+    </a>
+    <a href="mailto:thewriterds@gmail.com?subject=Interested in becoming a specialist - Befluente" class="btn-get-started">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      <span data-i18n="contact_email">Email</span>
+    </a>
+  </div>
 </section>
 
 <!-- ==================== FOOTER ==================== -->
@@ -1016,7 +1010,6 @@
     <a href="#" aria-label="X"><svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
     <a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" fill="none" stroke="white" stroke-width="2"/><circle cx="12" cy="12" r="5" fill="none" stroke="white" stroke-width="2"/><circle cx="17.5" cy="6.5" r="1.5" fill="white"/></svg></a>
     <a href="#" aria-label="LinkedIn"><svg viewBox="0 0 24 24"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-4 0v7h-4v-7a6 6 0 016-6zM2 9h4v12H2zM4 6a2 2 0 100-4 2 2 0 000 4z"/></svg></a>
-    <a href="#" aria-label="Pinterest"><svg viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.236 2.636 7.855 6.356 9.312-.088-.791-.167-2.005.035-2.868.181-.78 1.172-4.97 1.172-4.97s-.299-.598-.299-1.482c0-1.388.806-2.425 1.808-2.425.853 0 1.265.64 1.265 1.408 0 .858-.546 2.14-.828 3.33-.236.995.499 1.806 1.48 1.806 1.778 0 3.144-1.874 3.144-4.58 0-2.393-1.72-4.068-4.177-4.068-2.845 0-4.515 2.135-4.515 4.34 0 .859.331 1.781.745 2.282a.3.3 0 01.069.288l-.278 1.133c-.044.183-.145.222-.335.134-1.249-.581-2.03-2.407-2.03-3.874 0-3.154 2.292-6.052 6.608-6.052 3.469 0 6.165 2.473 6.165 5.776 0 3.447-2.173 6.22-5.19 6.22-1.013 0-1.965-.527-2.291-1.148l-.623 2.378c-.226.869-.835 1.958-1.244 2.621.937.29 1.931.446 2.962.446 5.523 0 10-4.477 10-10S17.523 2 12 2z"/></svg></a>
     <a href="#" aria-label="Vimeo"><svg viewBox="0 0 24 24"><path d="M23.977 6.416c-.105 2.338-1.739 5.543-4.894 9.609-3.268 4.247-6.026 6.37-8.29 6.37-1.409 0-2.578-1.294-3.553-3.881L5.322 11.4C4.603 8.816 3.834 7.522 3.01 7.522c-.179 0-.806.378-1.881 1.132L0 7.197c1.185-1.044 2.351-2.084 3.501-3.128C5.08 2.701 6.266 1.984 7.055 1.91c1.867-.18 3.016 1.1 3.447 3.838.465 2.953.789 4.789.971 5.507.539 2.45 1.131 3.674 1.776 3.674.502 0 1.256-.796 2.265-2.385 1.004-1.589 1.54-2.797 1.612-3.628.144-1.371-.395-2.061-1.614-2.061-.574 0-1.167.121-1.777.391 1.184-3.868 3.434-5.757 6.743-5.637 2.473.06 3.658 1.664 3.553 4.797z"/></svg></a>
     <a href="#" aria-label="TikTok"><svg viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1v-3.5a6.37 6.37 0 00-.79-.05A6.34 6.34 0 003.15 15.2a6.34 6.34 0 0010.86 4.46V13a8.28 8.28 0 005.58 2.17v-3.44a4.85 4.85 0 01-1-.14z"/></svg></a>
   </div>
@@ -1030,9 +1023,6 @@ const translations = {
   es: {
     hero_title: "Tutoría personalizada, diseñada para ti",
     hero_desc: "Eleva tu aprendizaje directamente conmigo a tu ritmo, con clases individuales y un plan adaptado a tus objetivos.",
-    brand_name: "Befluente Tutoring on Demand",
-    tablet_design: "Diseño",
-    tablet_subtitle: "ONLINE TUTORING",
     aprende_title: "Aprende. Mejora.",
     aprende_desc: "Clases personalizadas en línea con herramientas interactivas, materiales digitales, evaluaciones y recursos adaptados a tus necesidades. Ofrezco formación en inglés, español, francés, matemáticas, cine y preparación para entrevistas profesionales.",
     como_title: "Cómo te ayudo",
@@ -1087,7 +1077,7 @@ const translations = {
     booking_subject_other: "Otro",
     booking_message_label: "Mensaje (opcional)",
     booking_message_placeholder: "Cuéntame qué te gustaría aprender...",
-    booking_btn: "Reservar Clase",
+    booking_btn: "Reservar y Pagar con PayPal",
     cta_title: "¿Listo para comenzar?",
     cta_desc: "Ingresa tu correo electrónico para obtener acceso anticipado. Nuestro equipo se pondrá en contacto contigo para ofrecerte una orientación personalizada.",
     cta_placeholder: "E-mail address",
@@ -1096,24 +1086,18 @@ const translations = {
     especialista_pre: "Todo un mundo de conocimiento",
     especialista_title: "Conviértete en especialista",
     especialista_btn: "Get started now →",
+    contact_whatsapp: "WhatsApp",
+    contact_email: "Email",
     footer_terms: "Terms & Conditions",
     footer_privacy: "Privacy Policy",
     footer_cookies: "Cookie policy",
     alert_date: "Por favor selecciona una fecha",
     alert_time: "Por favor selecciona una hora",
-    alert_fields: "Por favor completa todos los campos obligatorios",
-    alert_success_prefix: "¡Reserva confirmada!\n\nFecha: ",
-    alert_success_mid: "\nHora: ",
-    alert_success_name: "\nNombre: ",
-    alert_success_subject: "\nMateria: ",
-    alert_success_suffix: "\n\nTe enviaremos un correo de confirmación a "
+    alert_fields: "Por favor completa todos los campos obligatorios"
   },
   en: {
     hero_title: "Personalized tutoring, designed for you",
     hero_desc: "Elevate your learning directly with me at your own pace, with individual classes and a plan adapted to your goals.",
-    brand_name: "Befluente Tutoring on Demand",
-    tablet_design: "Design",
-    tablet_subtitle: "ONLINE TUTORING",
     aprende_title: "Learn. Improve.",
     aprende_desc: "Personalized online classes with interactive tools, digital materials, assessments, and resources adapted to your needs. I offer training in English, Spanish, French, math, film, and professional interview preparation.",
     como_title: "How I help you",
@@ -1168,7 +1152,7 @@ const translations = {
     booking_subject_other: "Other",
     booking_message_label: "Message (optional)",
     booking_message_placeholder: "Tell me what you would like to learn...",
-    booking_btn: "Book Class",
+    booking_btn: "Book & Pay with PayPal",
     cta_title: "Ready to start?",
     cta_desc: "Enter your email to get early access. Our team will contact you to offer personalized guidance.",
     cta_placeholder: "E-mail address",
@@ -1177,17 +1161,14 @@ const translations = {
     especialista_pre: "A whole world of knowledge",
     especialista_title: "Become a specialist",
     especialista_btn: "Get started now →",
+    contact_whatsapp: "WhatsApp",
+    contact_email: "Email",
     footer_terms: "Terms & Conditions",
     footer_privacy: "Privacy Policy",
     footer_cookies: "Cookie policy",
     alert_date: "Please select a date",
     alert_time: "Please select a time",
-    alert_fields: "Please complete all required fields",
-    alert_success_prefix: "Booking confirmed!\n\nDate: ",
-    alert_success_mid: "\nTime: ",
-    alert_success_name: "\nName: ",
-    alert_success_subject: "\nSubject: ",
-    alert_success_suffix: "\n\nWe will send a confirmation email to "
+    alert_fields: "Please complete all required fields"
   }
 };
 
@@ -1196,28 +1177,19 @@ let currentLang = 'es';
 function setLanguage(lang) {
   currentLang = lang;
   document.documentElement.lang = lang;
-  
-  // Update buttons
   document.getElementById('btn-es').classList.toggle('active', lang === 'es');
   document.getElementById('btn-en').classList.toggle('active', lang === 'en');
   
-  // Update text content
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.getAttribute('data-i18n');
-    if (translations[lang][key]) {
-      el.textContent = translations[lang][key];
-    }
+    if (translations[lang][key]) el.textContent = translations[lang][key];
   });
   
-  // Update placeholders
   document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
     const key = el.getAttribute('data-i18n-placeholder');
-    if (translations[lang][key]) {
-      el.placeholder = translations[lang][key];
-    }
+    if (translations[lang][key]) el.placeholder = translations[lang][key];
   });
 
-  // Re-render calendar to update month/day names
   generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
 }
 
@@ -1226,7 +1198,6 @@ const sliderTrack = document.getElementById('sliderTrack');
 const prevBtn = document.getElementById('prevBtn');
 const nextBtn = document.getElementById('nextBtn');
 const sliderDots = document.getElementById('sliderDots');
-
 let currentIndex = 0;
 const cards = document.querySelectorAll('.slider-card');
 const totalSlides = cards.length;
@@ -1245,15 +1216,10 @@ function updateSlider() {
   const cardWidth = cards[0].offsetWidth + 24;
   const visibleCards = getVisibleCards();
   const maxIndex = totalSlides - visibleCards;
-  
   if (currentIndex > maxIndex) currentIndex = maxIndex;
   if (currentIndex < 0) currentIndex = 0;
-  
   sliderTrack.style.transform = `translateX(-${currentIndex * cardWidth}px)`;
-  
-  dots.forEach((dot, index) => {
-    dot.classList.toggle('active', index === currentIndex);
-  });
+  dots.forEach((dot, index) => dot.classList.toggle('active', index === currentIndex));
 }
 
 function getVisibleCards() {
@@ -1262,15 +1228,10 @@ function getVisibleCards() {
   return 3;
 }
 
-function goToSlide(index) {
-  currentIndex = index;
-  updateSlider();
-}
-
+function goToSlide(index) { currentIndex = index; updateSlider(); }
 prevBtn.addEventListener('click', () => { currentIndex--; updateSlider(); });
 nextBtn.addEventListener('click', () => { currentIndex++; updateSlider(); });
 window.addEventListener('resize', updateSlider);
-
 setInterval(() => {
   currentIndex++;
   if (currentIndex >= totalSlides - getVisibleCards() + 1) currentIndex = 0;
@@ -1301,7 +1262,6 @@ const dayNames = {
 
 function generateCalendar(year, month) {
   calendarGrid.innerHTML = '';
-  
   dayNames[currentLang].forEach(day => {
     const dayHeader = document.createElement('div');
     dayHeader.classList.add('calendar-day-header');
@@ -1310,7 +1270,6 @@ function generateCalendar(year, month) {
   });
   
   currentMonthEl.textContent = `${monthNames[currentLang][month]} ${year}`;
-  
   const firstDay = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const today = new Date();
@@ -1325,7 +1284,6 @@ function generateCalendar(year, month) {
     const dayCell = document.createElement('div');
     dayCell.classList.add('calendar-day');
     dayCell.textContent = day;
-    
     const cellDate = new Date(year, month, day);
     const isToday = cellDate.toDateString() === today.toDateString();
     const isPast = cellDate < new Date(today.setHours(0, 0, 0, 0));
@@ -1340,7 +1298,6 @@ function generateCalendar(year, month) {
     if (selectedDate && selectedDate.getDate() === day && selectedDate.getMonth() === month && selectedDate.getFullYear() === year) {
       dayCell.classList.add('selected');
     }
-    
     calendarGrid.appendChild(dayCell);
   }
 }
@@ -1349,12 +1306,11 @@ function selectDate(year, month, day) {
   selectedDate = new Date(year, month, day);
   const monthStr = monthNames[currentLang][month];
   selectedDateInput.value = currentLang === 'es' ? `${day} de ${monthStr} de ${year}` : `${monthStr} ${day}, ${year}`;
+  document.getElementById('formDate').value = selectedDateInput.value;
   
   document.querySelectorAll('.calendar-day').forEach(cell => {
     cell.classList.remove('selected');
-    if (cell.textContent == day && !cell.classList.contains('empty')) {
-      cell.classList.add('selected');
-    }
+    if (cell.textContent == day && !cell.classList.contains('empty')) cell.classList.add('selected');
   });
 }
 
@@ -1363,6 +1319,7 @@ timeSlots.forEach(slot => {
     timeSlots.forEach(s => s.classList.remove('selected'));
     slot.classList.add('selected');
     selectedTime = slot.dataset.time;
+    document.getElementById('formTime').value = selectedTime;
   });
 });
 
@@ -1378,30 +1335,18 @@ nextMonthBtn.addEventListener('click', () => {
 
 generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
 
-function bookClass() {
+function handleBooking(event) {
   const name = document.getElementById('studentName').value;
   const email = document.getElementById('studentEmail').value;
   const subjectSelect = document.getElementById('subjectSelect');
-  const subject = subjectSelect.options[subjectSelect.selectedIndex].text;
   
-  if (!selectedDate) { alert(translations[currentLang].alert_date); return; }
-  if (!selectedTime) { alert(translations[currentLang].alert_time); return; }
-  if (!name || !email || subjectSelect.value === "") { alert(translations[currentLang].alert_fields); return; }
+  if (!selectedDate) { alert(translations[currentLang].alert_date); return false; }
+  if (!selectedTime) { alert(translations[currentLang].alert_time); return false; }
+  if (!name || !email || subjectSelect.value === "") { alert(translations[currentLang].alert_fields); return false; }
   
-  const t = translations[currentLang];
-  alert(`${t.alert_success_prefix}${selectedDateInput.value}${t.alert_success_mid}${selectedTime}${t.alert_success_name}${name}${t.alert_success_subject}${subject}${t.alert_success_suffix}${email}`);
-  
-  selectedDate = null;
-  selectedTime = null;
-  selectedDateInput.value = '';
-  document.getElementById('studentName').value = '';
-  document.getElementById('studentEmail').value = '';
-  subjectSelect.value = '';
-  document.getElementById('message').value = '';
-  timeSlots.forEach(s => s.classList.remove('selected'));
-  generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
+  // FormSubmit will handle the email and redirect to PayPal automatically
+  return true;
 }
 </script>
-
 </body>
 </html>
