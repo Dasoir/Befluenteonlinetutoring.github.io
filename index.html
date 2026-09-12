@@ -866,11 +866,7 @@ let selectedTime = null;
 let exitIntentShown = false;
 let leadMagnetShown = false;
 
-const bookedSlots = {
-  '2026-09-15': ['10:00', '15:00'],
-  '2026-09-16': ['09:00', '14:00'],
-  '2026-09-17': ['11:00', '16:00']
-};
+const bookedSlots = { };
 
 // ==================== LANGUAGE & TIMEZONE ====================
 function setLanguage(lang) {
@@ -945,12 +941,14 @@ function generateCalendar(year, month) {
   }
 }
 
-function selectDate(year, month, day) {
+unction selectDate(year, month, day) {
   selectedDate = new Date(year, month, day);
   const monthNames = currentLang === 'es' ? ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'] : ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
   const monthStr = monthNames[month];
+  
   document.getElementById('selectedDate').value = currentLang === 'es' ? `${day} de ${monthStr} de ${year}` : `${monthStr} ${day}, ${year}`;
   document.getElementById('formDate').value = document.getElementById('selectedDate').value;
+  
   document.querySelectorAll('.calendar-day').forEach(cell => {
     cell.classList.remove('selected');
     if (cell.textContent == day && !cell.classList.contains('empty')) cell.classList.add('selected');
