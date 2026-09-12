@@ -1,1 +1,1407 @@
 
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Befluente - Tutoría Personalizada</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  /* ==================== RESET & BASE ==================== */
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  :root {
+    --blue-primary: #3b5bdb;
+    --blue-dark: #2b4acb;
+    --blue-light: #5c7cfa;
+    --bg-dark: #0a0a0f;
+    --bg-card: #111118;
+    --text-white: #ffffff;
+    --text-gray: #a0a0b0;
+    --text-muted: #6c6c80;
+    --border-subtle: #1e1e2e;
+    --accent-gold: #d4a843;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg-dark);
+    color: var(--text-white);
+    line-height: 1.6;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { text-decoration: none; color: inherit; transition: 0.3s; }
+  button { font-family: inherit; cursor: pointer; }
+
+  /* ==================== LANGUAGE SWITCHER ==================== */
+  .lang-switcher {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    background: rgba(17, 17, 24, 0.9);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border-subtle);
+    border-radius: 30px;
+    padding: 4px;
+    display: flex;
+    gap: 4px;
+  }
+
+  .lang-btn {
+    padding: 8px 16px;
+    border-radius: 24px;
+    border: none;
+    background: transparent;
+    color: var(--text-gray);
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.3s;
+  }
+
+  .lang-btn.active {
+    background: var(--blue-primary);
+    color: white;
+  }
+
+  .lang-btn:hover:not(.active) {
+    color: var(--text-white);
+  }
+
+  /* ==================== HERO SECTION ==================== */
+  .hero {
+    text-align: center;
+    padding: 80px 20px 0;
+    background: linear-gradient(180deg, #0d0d18 0%, #0a0a0f 100%);
+    position: relative;
+    z-index: 2;
+  }
+
+  .hero h1 {
+    font-size: clamp(32px, 5vw, 52px);
+    font-weight: 800;
+    max-width: 900px;
+    margin: 0 auto 24px;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+  }
+
+  .hero p {
+    color: var(--text-gray);
+    font-size: clamp(15px, 1.5vw, 18px);
+    max-width: 680px;
+    margin: 0 auto 60px;
+    line-height: 1.7;
+    padding: 0 10px;
+  }
+
+  .tablet-wrapper {
+    display: flex;
+    justify-content: center;
+    padding-bottom: 80px;
+    perspective: 1000px;
+  }
+
+  .tablet {
+    width: min(640px, 92vw);
+    aspect-ratio: 4/3;
+    background: #1a1a2e;
+    border-radius: 28px;
+    border: 4px solid #2a2a3e;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.6), inset 0 0 0 1px rgba(255,255,255,0.05);
+  }
+
+  .tablet-screen {
+    width: 100%;
+    height: 100%;
+    background: #0d0d1a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .tablet-logo-area { text-align: center; z-index: 1; }
+  
+  .tablet-logo-text {
+    font-size: clamp(24px, 4vw, 36px);
+    font-weight: 700;
+    color: var(--accent-gold);
+    letter-spacing: 1px;
+    margin-top: 10px;
+  }
+
+  .tablet-logo-sub {
+    font-size: 11px;
+    color: var(--text-gray);
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    margin-top: 6px;
+  }
+
+  .tablet-header-bar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 44px;
+    background: rgba(15,15,25,0.95);
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 18px;
+    font-size: 13px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    z-index: 10;
+  }
+
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 600; }
+  .brand-dot {
+    width: 26px; height: 26px;
+    background: var(--blue-primary);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .side-controls {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    z-index: 10;
+  }
+
+  .side-btn {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.15);
+    background: rgba(20,20,35,0.7);
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    backdrop-filter: blur(4px);
+  }
+
+  .progress-bar-container {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 40px;
+    background: rgba(15,15,25,0.95);
+    display: flex;
+    align-items: center;
+    padding: 0 18px;
+    gap: 12px;
+    z-index: 10;
+    border-top: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .play-icon { width: 24px; height: 24px; fill: white; opacity: 0.9; }
+  .track { flex: 1; height: 3px; background: rgba(255,255,255,0.1); border-radius: 2px; position: relative; }
+  .fill { width: 35%; height: 100%; background: var(--blue-primary); border-radius: 2px; }
+  .time-label { font-size: 11px; color: var(--text-gray); font-variant-numeric: tabular-nums; }
+  .vimeo-badge { font-size: 11px; color: var(--text-gray); font-weight: 700; letter-spacing: 0.5px; margin-left: auto; }
+
+  /* ==================== WAVE DIVIDERS ==================== */
+  .wave-divider {
+    position: relative;
+    height: 100px;
+    background: linear-gradient(135deg, #2b4acb 0%, #3b5bdb 50%, #5c7cfa 100%);
+    overflow: hidden;
+    z-index: 1;
+  }
+
+  .wave-divider::after {
+    content: '';
+    position: absolute;
+    bottom: -1px; left: 0; right: 0;
+    height: 80px;
+    background: var(--bg-dark);
+    clip-path: ellipse(60% 100% at 50% 100%);
+  }
+
+  /* ==================== APRENDE SECTION ==================== */
+  .aprende-section {
+    padding: 80px 20px 100px;
+    text-align: center;
+    background: var(--bg-dark);
+  }
+
+  .aprende-section h2 {
+    font-size: clamp(32px, 5vw, 48px);
+    font-weight: 800;
+    margin-bottom: 30px;
+    letter-spacing: -0.02em;
+  }
+
+  .aprende-desc {
+    color: var(--text-gray);
+    max-width: 750px;
+    margin: 0 auto;
+    font-size: 16px;
+    line-height: 1.8;
+    text-align: left;
+    padding-left: 35px;
+    position: relative;
+  }
+
+  .aprende-desc::before {
+    content: '•';
+    position: absolute;
+    left: 12px;
+    top: 0;
+    color: var(--text-gray);
+    font-size: 20px;
+  }
+
+  /* ==================== CÓMO TE AYUDO ==================== */
+  .como-section {
+    padding: 80px 20px 120px;
+    max-width: 1100px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: start;
+  }
+
+  @media (max-width: 850px) { .como-section { grid-template-columns: 1fr; gap: 50px; } }
+
+  .como-left h2 {
+    font-size: clamp(36px, 5vw, 52px);
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 28px;
+    letter-spacing: -0.02em;
+  }
+
+  .como-left p { color: var(--text-gray); font-size: 17px; line-height: 1.8; }
+  .como-right { display: flex; flex-direction: column; gap: 40px; }
+  .como-card { display: flex; gap: 18px; align-items: flex-start; }
+
+  .como-icon {
+    width: 40px; height: 40px; min-width: 40px;
+    background: var(--blue-primary);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    margin-top: 2px;
+  }
+
+  .como-icon svg { width: 20px; height: 20px; stroke: white; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .como-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 10px; }
+  .como-card p { color: var(--text-gray); font-size: 15px; line-height: 1.7; }
+
+  /* ==================== BENEFICIOS ==================== */
+  .beneficios-section {
+    padding: 80px 20px 100px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .beneficios-section h2 {
+    font-size: clamp(32px, 5vw, 46px);
+    font-weight: 800;
+    margin-bottom: 60px;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+  }
+
+  .beneficios-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 50px; }
+  @media (max-width: 850px) { .beneficios-grid { grid-template-columns: 1fr; gap: 40px; } }
+
+  .beneficio-item { display: flex; gap: 18px; align-items: flex-start; }
+  .beneficio-icon { width: 40px; height: 40px; min-width: 40px; display: flex; align-items: center; justify-content: center; margin-top: 2px; }
+  .beneficio-icon svg { width: 28px; height: 28px; stroke: var(--blue-primary); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .beneficio-item h3 { font-size: 18px; font-weight: 700; margin-bottom: 12px; }
+  .beneficio-item p { color: var(--text-gray); font-size: 15px; line-height: 1.7; }
+
+  /* ==================== TOOLS & SUBJECTS ==================== */
+  .tools-section { padding: 60px 20px 100px; max-width: 1100px; margin: 0 auto; }
+  .software-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-bottom: 28px; }
+  @media (max-width: 768px) { .software-grid { grid-template-columns: repeat(2, 1fr); } }
+
+  .tool-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 18px;
+    padding: 32px 20px;
+    text-align: center;
+    transition: border-color 0.3s, transform 0.3s;
+  }
+  .tool-card:hover { border-color: var(--blue-primary); transform: translateY(-2px); }
+  .tool-card svg { width: 52px; height: 52px; margin-bottom: 16px; }
+  .tool-card span { display: block; font-size: 15px; font-weight: 600; }
+
+  .subjects-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(95px, 1fr)); gap: 14px; }
+  .subject-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 16px;
+    padding: 24px 12px;
+    text-align: center;
+    transition: border-color 0.3s;
+  }
+  .subject-card:hover { border-color: var(--blue-primary); }
+  .subject-card svg { width: 32px; height: 32px; margin-bottom: 10px; stroke: var(--blue-primary); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .subject-card span { display: block; font-size: 12px; font-weight: 600; color: var(--text-gray); }
+
+  /* ==================== APPS SLIDER ==================== */
+  .apps-slider-section {
+    padding: 80px 20px;
+    background: linear-gradient(180deg, #0d0d18 0%, #0a0a0f 100%);
+    overflow: hidden;
+  }
+
+  .apps-slider-section h2 {
+    font-size: clamp(32px, 5vw, 42px);
+    font-weight: 800;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .apps-slider-subtitle {
+    text-align: center;
+    color: var(--text-gray);
+    margin-bottom: 50px;
+    font-size: 16px;
+  }
+
+  .slider-container { position: relative; max-width: 1200px; margin: 0 auto; }
+  .slider-wrapper { overflow: hidden; border-radius: 20px; }
+  .slider-track { display: flex; gap: 24px; transition: transform 0.5s ease; }
+
+  .slider-card {
+    min-width: calc(33.333% - 16px);
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 18px;
+    padding: 40px 30px;
+    text-align: center;
+    transition: all 0.3s;
+  }
+
+  @media (max-width: 968px) { .slider-card { min-width: calc(50% - 12px); } }
+  @media (max-width: 640px) { .slider-card { min-width: 100%; } }
+
+  .slider-card:hover {
+    border-color: var(--blue-primary);
+    transform: translateY(-5px);
+    box-shadow: 0 10px 40px rgba(59, 91, 219, 0.2);
+  }
+
+  .slider-card svg { width: 70px; height: 70px; margin-bottom: 20px; }
+  .slider-card h3 { font-size: 20px; font-weight: 700; margin-bottom: 12px; }
+  .slider-card p { color: var(--text-gray); font-size: 14px; line-height: 1.6; }
+  .slider-card .level {
+    display: inline-block;
+    padding: 6px 14px;
+    background: rgba(59, 91, 219, 0.15);
+    color: var(--blue-light);
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-top: 16px;
+  }
+
+  .slider-controls { display: flex; justify-content: center; gap: 16px; margin-top: 40px; }
+  .slider-btn {
+    width: 50px; height: 50px;
+    border-radius: 50%;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    color: white;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.3s;
+  }
+  .slider-btn:hover { background: var(--blue-primary); border-color: var(--blue-primary); transform: scale(1.1); }
+
+  .slider-dots { display: flex; justify-content: center; gap: 10px; margin-top: 24px; }
+  .slider-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--border-subtle);
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .slider-dot.active { background: var(--blue-primary); width: 30px; border-radius: 5px; }
+
+  /* ==================== BOOKING CALENDAR ==================== */
+  .booking-section {
+    padding: 80px 20px;
+    background: var(--bg-dark);
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  .booking-section h2 {
+    font-size: clamp(32px, 5vw, 42px);
+    font-weight: 800;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .booking-subtitle {
+    text-align: center;
+    color: var(--text-gray);
+    margin-bottom: 50px;
+    font-size: 16px;
+  }
+
+  .calendar-container {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 20px;
+    padding: 40px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+  }
+
+  @media (max-width: 768px) { .calendar-container { grid-template-columns: 1fr; padding: 24px; } }
+
+  .calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    grid-column: 1 / -1;
+  }
+
+  .calendar-nav {
+    background: var(--blue-primary);
+    border: none;
+    color: white;
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.3s;
+  }
+  .calendar-nav:hover { background: var(--blue-dark); }
+  .calendar-month { font-size: 20px; font-weight: 700; }
+
+  .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
+  .calendar-day-header { text-align: center; font-size: 12px; font-weight: 600; color: var(--text-muted); padding: 10px; text-transform: uppercase; }
+  
+  .calendar-day {
+    aspect-ratio: 1;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 10px;
+    font-size: 14px; font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s;
+    border: 1px solid transparent;
+  }
+  .calendar-day:hover:not(.empty):not(.selected) { border-color: var(--blue-primary); background: rgba(59, 91, 219, 0.1); }
+  .calendar-day.selected { background: var(--blue-primary); color: white; font-weight: 700; }
+  .calendar-day.empty { cursor: default; }
+  .calendar-day.disabled { color: var(--text-muted); cursor: not-allowed; opacity: 0.5; }
+
+  .booking-form { display: flex; flex-direction: column; gap: 20px; }
+  .form-group { display: flex; flex-direction: column; gap: 8px; }
+  .form-group label { font-size: 14px; font-weight: 600; color: var(--text-gray); }
+  
+  .form-group input, .form-group select, .form-group textarea {
+    padding: 14px;
+    background: #1a1a2e;
+    border: 1px solid var(--border-subtle);
+    border-radius: 10px;
+    color: white;
+    font-family: inherit;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.3s;
+  }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--blue-primary); }
+
+  .time-slots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px; }
+  .time-slot {
+    padding: 12px;
+    background: #1a1a2e;
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    text-align: center;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .time-slot:hover { border-color: var(--blue-primary); }
+  .time-slot.selected { background: var(--blue-primary); border-color: var(--blue-primary); color: white; font-weight: 600; }
+
+  .btn-book {
+    background: var(--blue-primary);
+    color: white;
+    border: none;
+    padding: 16px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-top: 10px;
+  }
+  .btn-book:hover { background: var(--blue-dark); transform: translateY(-2px); }
+
+  /* ==================== PROGRAMAS ==================== */
+  .programas-section { padding: 80px 20px 100px; max-width: 750px; margin: 0 auto; }
+  .programas-section h2 { font-size: clamp(32px, 5vw, 46px); font-weight: 800; text-align: center; margin-bottom: 45px; letter-spacing: -0.02em; }
+  .programa-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 18px;
+    padding: 30px;
+    display: flex; align-items: center; gap: 24px; flex-wrap: wrap;
+  }
+  .programa-info { flex: 1; min-width: 220px; }
+  .programa-tag { font-size: 13px; color: var(--blue-light); margin-bottom: 6px; font-weight: 500; }
+  .programa-name { font-size: 19px; font-weight: 700; margin-bottom: 8px; }
+  .programa-desc { font-size: 14px; color: var(--text-muted); line-height: 1.6; }
+  .programa-progress { display: flex; align-items: center; gap: 18px; }
+  .progress-text { font-size: 14px; color: var(--text-gray); }
+  .btn-continue {
+    background: var(--blue-primary); color: white; border: none; padding: 12px 28px; border-radius: 10px; font-size: 14px; font-weight: 600; transition: background 0.3s;
+  }
+  .btn-continue:hover { background: var(--blue-dark); }
+  .no-results { text-align: center; color: var(--text-muted); font-size: 14px; margin-top: 24px; }
+
+  /* ==================== CTA SECTIONS ==================== */
+  .cta-section { padding: 100px 20px; text-align: center; background: var(--bg-dark); }
+  .cta-section h2 { font-size: clamp(32px, 5vw, 48px); font-weight: 800; margin-bottom: 24px; letter-spacing: -0.02em; }
+  .cta-desc { color: var(--text-gray); max-width: 580px; margin: 0 auto 45px; font-size: 16px; line-height: 1.7; }
+  .email-form {
+    display: flex; max-width: 520px; margin: 0 auto; border-radius: 12px; overflow: hidden; border: 1px solid var(--border-subtle); background: #1a1a2e;
+  }
+  .email-form input { flex: 1; padding: 16px 24px; background: transparent; border: none; color: white; font-size: 15px; outline: none; font-family: inherit; }
+  .email-form input::placeholder { color: var(--text-muted); }
+  .email-form button { background: var(--blue-primary); color: white; border: none; padding: 16px 32px; font-size: 15px; font-weight: 600; transition: background 0.3s; white-space: nowrap; }
+  .email-form button:hover { background: var(--blue-dark); }
+
+  .especialista-section { padding: 80px 20px 120px; text-align: center; background: var(--bg-dark); }
+  .pre-title { color: var(--text-gray); font-size: 16px; margin-bottom: 16px; font-weight: 500; }
+  .especialista-section h2 { font-size: clamp(32px, 5vw, 48px); font-weight: 800; margin-bottom: 36px; letter-spacing: -0.02em; }
+  .btn-get-started {
+    display: inline-flex; align-items: center; gap: 10px; background: var(--blue-primary); color: white; border: none; padding: 16px 36px; border-radius: 12px; font-size: 16px; font-weight: 600; transition: background 0.3s, transform 0.2s;
+  }
+  .btn-get-started:hover { background: var(--blue-dark); transform: translateY(-1px); }
+
+  /* ==================== FOOTER ==================== */
+  footer { padding: 60px 20px 40px; text-align: center; background: var(--bg-dark); border-top: 1px solid var(--border-subtle); }
+  .footer-logo { width: 64px; height: 64px; margin: 0 auto 24px; background: var(--bg-card); border-radius: 14px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-subtle); }
+  .footer-links { display: flex; justify-content: center; gap: 12px; margin-bottom: 28px; flex-wrap: wrap; align-items: center; }
+  .footer-links a { color: var(--text-muted); font-size: 13px; text-decoration: underline; text-underline-offset: 3px; }
+  .footer-links a:hover { color: var(--text-white); }
+  .sep { color: var(--text-muted); user-select: none; font-size: 12px; }
+  .social-icons { display: flex; justify-content: center; gap: 14px; margin-bottom: 28px; }
+  .social-icons a { width: 40px; height: 40px; border-radius: 50%; background: var(--blue-primary); display: flex; align-items: center; justify-content: center; transition: background 0.3s, transform 0.2s; }
+  .social-icons a:hover { background: var(--blue-dark); transform: translateY(-2px); }
+  .social-icons svg { width: 18px; height: 18px; fill: white; }
+  .copyright { color: var(--text-muted); font-size: 13px; }
+
+  @media (max-width: 600px) {
+    .hero { padding-top: 50px; }
+    .como-section, .beneficios-section, .tools-section, .programas-section { padding-left: 16px; padding-right: 16px; }
+    .email-form { flex-direction: column; border-radius: 12px; }
+    .email-form button { border-radius: 0; padding: 16px; }
+    .programa-card { padding: 24px; }
+    .programa-progress { width: 100%; justify-content: space-between; margin-top: 10px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ==================== LANGUAGE SWITCHER ==================== -->
+<div class="lang-switcher">
+  <button class="lang-btn active" onclick="setLanguage('es')" id="btn-es">ES</button>
+  <button class="lang-btn" onclick="setLanguage('en')" id="btn-en">EN</button>
+</div>
+
+<!-- ==================== HERO ==================== -->
+<section class="hero">
+  <h1 data-i18n="hero_title">Tutoría personalizada, diseñada para ti</h1>
+  <p data-i18n="hero_desc">Eleva tu aprendizaje directamente conmigo a tu ritmo, con clases individuales y un plan adaptado a tus objetivos.</p>
+  <div class="tablet-wrapper">
+    <div class="tablet">
+      <div class="tablet-screen">
+        <div class="tablet-header-bar">
+          <div class="brand">
+            <div class="brand-dot">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+            </div>
+            <span data-i18n="brand_name">Befluente Tutoring on Demand</span>
+          </div>
+          <span style="color:#aaa;font-size:12px;" data-i18n="tablet_design">Diseño</span>
+        </div>
+        <div class="tablet-logo-area">
+          <svg viewBox="0 0 120 120" width="clamp(80px, 15vw, 130px)" height="clamp(80px, 15vw, 130px)" fill="none">
+            <circle cx="60" cy="60" r="48" stroke="#3b5bdb" stroke-width="2"/>
+            <ellipse cx="60" cy="60" rx="28" ry="48" stroke="#3b5bdb" stroke-width="1.5"/>
+            <line x1="12" y1="60" x2="108" y2="60" stroke="#3b5bdb" stroke-width="1"/>
+            <line x1="20" y1="38" x2="100" y2="38" stroke="#3b5bdb" stroke-width="0.8"/>
+            <line x1="20" y1="82" x2="100" y2="82" stroke="#3b5bdb" stroke-width="0.8"/>
+            <rect x="50" y="32" width="20" height="32" rx="10" fill="#d4a843"/>
+            <path d="M42 58 C42 70, 78 70, 78 58" stroke="#d4a843" stroke-width="3" fill="none"/>
+            <line x1="60" y1="65" x2="60" y2="76" stroke="#d4a843" stroke-width="3"/>
+            <line x1="50" y1="76" x2="70" y2="76" stroke="#d4a843" stroke-width="3"/>
+          </svg>
+          <div class="tablet-logo-text">Befluente</div>
+          <div class="tablet-logo-sub" data-i18n="tablet_subtitle">ONLINE TUTORING</div>
+        </div>
+        <div class="side-controls">
+          <button class="side-btn" aria-label="Like">♡</button>
+          <button class="side-btn" aria-label="Info"></button>
+          <button class="side-btn" aria-label="Share">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          </button>
+          <button class="side-btn" aria-label="Code">&lt;/&gt;</button>
+        </div>
+        <div class="progress-bar-container">
+          <svg class="play-icon" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          <div class="track"><div class="fill"></div></div>
+          <span class="time-label">00:34</span>
+          <span class="vimeo-badge">vimeo</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="wave-divider"></div>
+
+<!-- ==================== APRENDE. MEJORA. ==================== -->
+<section class="aprende-section">
+  <h2 data-i18n="aprende_title">Aprende. Mejora.</h2>
+  <div class="aprende-desc" data-i18n="aprende_desc">
+    Clases personalizadas en línea con herramientas interactivas, materiales digitales, evaluaciones y recursos adaptados a tus necesidades. Ofrezco formación en inglés, español, francés, matemáticas, cine y preparación para entrevistas profesionales.
+  </div>
+</section>
+
+<!-- ==================== CÓMO TE AYUDO ==================== -->
+<section class="como-section">
+  <div class="como-left">
+    <h2 data-i18n="como_title">Cómo te ayudo</h2>
+    <p data-i18n="como_desc">Te ayudo a desarrollar tus habilidades y alcanzar tus objetivos académicos o profesionales mediante clases personalizadas, prácticas y flexibles.</p>
+  </div>
+  <div class="como-right">
+    <div class="como-card">
+      <div class="como-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+      </div>
+      <div>
+        <h3 data-i18n="como_card1_title">Aprendizaje personalizado</h3>
+        <p data-i18n="como_card1_desc">Diseño cada clase de acuerdo con tu nivel, tus objetivos y tu ritmo de aprendizaje, para que recibas la orientación y el apoyo que realmente necesitas.</p>
+      </div>
+    </div>
+    <div class="como-card">
+      <div class="como-icon">
+        <svg viewBox="0 0 24 24"><path d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+      </div>
+      <div>
+        <h3 data-i18n="como_card2_title">Clases en línea</h3>
+        <p data-i18n="como_card2_desc">Aprende desde cualquier lugar a través de sesiones individuales por videollamada, con atención directa, materiales interactivos y seguimiento personalizado.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="wave-divider"></div>
+
+<!-- ==================== BENEFICIOS ==================== -->
+<section class="beneficios-section">
+  <h2 data-i18n="beneficios_title">Beneficios de aprender conmigo</h2>
+  <div class="beneficios-grid">
+    <div class="beneficio-item">
+      <div class="beneficio-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+      </div>
+      <div>
+        <h3 data-i18n="ben1_title">Enfoque práctico</h3>
+        <p data-i18n="ben1_desc">Mis clases están diseñadas para desarrollar habilidades que puedas aplicar en situaciones reales. Trabajaremos con ejercicios, ejemplos y actividades enfocadas en tus objetivos.</p>
+      </div>
+    </div>
+    <div class="beneficio-item">
+      <div class="beneficio-icon">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+      </div>
+      <div>
+        <h3 data-i18n="ben2_title">Perspectiva global</h3>
+        <p data-i18n="ben2_desc">Aprende habilidades y conocimientos que puedes aplicar en contextos académicos, profesionales e internacionales, con un enfoque adaptado a tus metas.</p>
+      </div>
+    </div>
+    <div class="beneficio-item">
+      <div class="beneficio-icon">
+        <svg viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+      </div>
+      <div>
+        <h3 data-i18n="ben3_title">Enfocado en tus objetivos</h3>
+        <p data-i18n="ben3_desc">Ya sea que quieras mejorar tu desempeño académico, prepararte para una entrevista, avanzar profesionalmente o aprender un nuevo idioma, cada sesión estará enfocada en ayudarte a progresar.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== SOFTWARE & SUBJECTS ==================== -->
+<section class="tools-section">
+  <div class="software-grid">
+    <div class="tool-card">
+      <svg viewBox="0 0 64 64">
+        <rect x="8" y="12" width="48" height="40" rx="6" fill="#1a1a2e" stroke="#333" stroke-width="1.5"/>
+        <rect x="12" y="8" width="40" height="14" rx="4" fill="#2a2a3e" stroke="#444" stroke-width="1"/>
+        <line x1="16" y1="10" x2="22" y2="18" stroke="white" stroke-width="2.5"/>
+        <line x1="24" y1="10" x2="30" y2="18" stroke="white" stroke-width="2.5"/>
+        <line x1="32" y1="10" x2="38" y2="18" stroke="white" stroke-width="2.5"/>
+        <line x1="40" y1="10" x2="46" y2="18" stroke="white" stroke-width="2.5"/>
+        <defs><linearGradient id="fcgrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#ff6b6b"/><stop offset="25%" stop-color="#ffd93d"/><stop offset="50%" stop-color="#6bcb77"/><stop offset="75%" stop-color="#4d96ff"/><stop offset="100%" stop-color="#9b59b6"/></linearGradient></defs>
+        <rect x="14" y="26" width="36" height="22" rx="3" fill="url(#fcgrad)" opacity="0.9"/>
+      </svg>
+      <span>Final Cut Pro</span>
+    </div>
+    <div class="tool-card">
+      <svg viewBox="0 0 64 64">
+        <defs><linearGradient id="adgrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#ff6ec7"/><stop offset="30%" stop-color="#ff9a44"/><stop offset="60%" stop-color="#ffd93d"/><stop offset="100%" stop-color="#6bcf7f"/></linearGradient></defs>
+        <rect x="8" y="8" width="48" height="48" rx="12" fill="url(#adgrad)"/>
+        <path d="M32 18 C24 18, 18 24, 18 32 C18 40, 24 46, 32 46 C36 46, 39 44, 41 41" stroke="white" stroke-width="4" fill="none" stroke-linecap="round"/>
+        <path d="M32 46 C40 46, 46 40, 46 32 C46 24, 40 18, 32 18 C28 18, 25 20, 23 23" stroke="white" stroke-width="4" fill="none" stroke-linecap="round"/>
+      </svg>
+      <span>Adobe Creative Cloud</span>
+    </div>
+    <div class="tool-card">
+      <svg viewBox="0 0 64 64">
+        <rect x="8" y="8" width="48" height="48" rx="12" fill="#1a1a2e" stroke="#333" stroke-width="1.5"/>
+        <ellipse cx="32" cy="24" rx="8" ry="10" fill="#4dc9f6"/>
+        <ellipse cx="24" cy="40" rx="8" ry="10" fill="#f7d94e" transform="rotate(-30 24 40)"/>
+        <ellipse cx="40" cy="40" rx="8" ry="10" fill="#e85454" transform="rotate(30 40 40)"/>
+      </svg>
+      <span>DaVinci Resolve</span>
+    </div>
+    <div class="tool-card">
+      <svg viewBox="0 0 64 64">
+        <rect x="8" y="8" width="48" height="48" rx="12" fill="#1a1a2e" stroke="#333" stroke-width="1.5"/>
+        <path d="M20 22 L44 42 M44 22 L20 42" stroke="white" stroke-width="5" stroke-linecap="round"/>
+        <path d="M18 20 Q20 18 24 20 L28 24 Q24 22 20 24 Z" fill="white"/>
+        <path d="M46 20 Q44 18 40 20 L36 24 Q40 22 44 24 Z" fill="white"/>
+      </svg>
+      <span>CapCut</span>
+    </div>
+  </div>
+
+  <div class="subjects-grid">
+    <div class="subject-card"><svg viewBox="0 0 48 48"><rect x="10" y="6" width="28" height="36" rx="4"/><rect x="15" y="11" width="18" height="7" rx="2"/><circle cx="17" cy="24" r="1.5" fill="currentColor"/><circle cx="24" cy="24" r="1.5" fill="currentColor"/><circle cx="31" cy="24" r="1.5" fill="currentColor"/><circle cx="17" cy="31" r="1.5" fill="currentColor"/><circle cx="24" cy="31" r="1.5" fill="currentColor"/><circle cx="31" cy="31" r="1.5" fill="currentColor"/><circle cx="17" cy="37" r="1.5" fill="currentColor"/><circle cx="24" cy="37" r="1.5" fill="currentColor"/><circle cx="31" cy="37" r="1.5" fill="currentColor"/></svg><span>Math I</span></div>
+    <div class="subject-card"><svg viewBox="0 0 48 48"><rect x="10" y="6" width="28" height="36" rx="4"/><rect x="15" y="11" width="18" height="7" rx="2"/><circle cx="17" cy="24" r="1.5" fill="currentColor"/><circle cx="24" cy="24" r="1.5" fill="currentColor"/><circle cx="31" cy="24" r="1.5" fill="currentColor"/><circle cx="17" cy="31" r="1.5" fill="currentColor"/><circle cx="24" cy="31" r="1.5" fill="currentColor"/><circle cx="31" cy="31" r="1.5" fill="currentColor"/><circle cx="17" cy="37" r="1.5" fill="currentColor"/><circle cx="24" cy="37" r="1.5" fill="currentColor"/><circle cx="31" cy="37" r="1.5" fill="currentColor"/></svg><span>Math II</span></div>
+    <div class="subject-card"><svg viewBox="0 0 48 48"><text x="24" y="34" text-anchor="middle" font-size="24" font-style="italic" fill="currentColor" font-family="serif">x²</text></svg><span>Algebra I</span></div>
+    <div class="subject-card"><svg viewBox="0 0 48 48"><text x="24" y="34" text-anchor="middle" font-size="20" font-style="italic" fill="currentColor" font-family="serif">(x)</text></svg><span>Algebra II</span></div>
+    <div class="subject-card"><svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="4" fill="currentColor"/><ellipse cx="24" cy="24" rx="18" ry="8"/><ellipse cx="24" cy="24" rx="18" ry="8" transform="rotate(60 24 24)"/><ellipse cx="24" cy="24" rx="18" ry="8" transform="rotate(120 24 24)"/></svg><span>Physics</span></div>
+    <div class="subject-card"><svg viewBox="0 0 48 48"><path d="M8 12 C8 8, 12 6, 16 6 H32 C36 6, 40 8, 40 12 V28 C40 32, 36 34, 32 34 L20 34 L12 42 L14 34 C10 32, 8 30, 8 28 Z"/><text x="24" y="26" text-anchor="middle" font-size="13" font-weight="bold" fill="currentColor" font-family="sans-serif">EN</text></svg><span>English</span></div>
+    <div class="subject-card"><svg viewBox="0 0 48 48"><path d="M8 12 C8 8, 12 6, 16 6 H32 C36 6, 40 8, 40 12 V28 C40 32, 36 34, 32 34 L20 34 L12 42 L14 34 C10 32, 8 30, 8 28 Z"/><text x="24" y="26" text-anchor="middle" font-size="13" font-weight="bold" fill="currentColor" font-family="sans-serif">ES</text></svg><span>Spanish</span></div>
+    <div class="subject-card"><svg viewBox="0 0 48 48"><path d="M8 12 C8 8, 12 6, 16 6 H32 C36 6, 40 8, 40 12 V28 C40 32, 36 34, 32 34 L20 34 L12 42 L14 34 C10 32, 8 30, 8 28 Z"/><text x="24" y="26" text-anchor="middle" font-size="13" font-weight="bold" fill="currentColor" font-family="sans-serif">FR</text></svg><span>French</span></div>
+    <div class="subject-card"><svg viewBox="0 0 48 48"><rect x="12" y="6" width="24" height="36" rx="3"/><line x1="17" y1="14" x2="31" y2="14"/><line x1="17" y1="20" x2="31" y2="20"/><line x1="17" y1="26" x2="27" y2="26"/><line x1="17" y1="32" x2="31" y2="32"/></svg><span>Screenwriting</span></div>
+    <div class="subject-card"><svg viewBox="0 0 48 48"><circle cx="18" cy="16" r="5"/><path d="M10 34 C10 28, 14 24, 18 24 C22 24, 26 28, 26 34"/><circle cx="32" cy="18" r="4"/><path d="M26 34 C26 30, 29 27, 32 27 C35 27, 38 30, 38 34"/></svg><span>Interview Skills</span></div>
+  </div>
+</section>
+
+<!-- ==================== APPS SLIDER ==================== -->
+<section class="apps-slider-section">
+  <h2 data-i18n="apps_title">Apps que enseño</h2>
+  <p class="apps-slider-subtitle" data-i18n="apps_subtitle">Domina las herramientas profesionales más demandadas</p>
+  
+  <div class="slider-container">
+    <div class="slider-wrapper">
+      <div class="slider-track" id="sliderTrack">
+        <div class="slider-card">
+          <svg viewBox="0 0 64 64">
+            <rect x="8" y="12" width="48" height="40" rx="6" fill="#1a1a2e" stroke="#333" stroke-width="1.5"/>
+            <rect x="12" y="8" width="40" height="14" rx="4" fill="#2a2a3e" stroke="#444" stroke-width="1"/>
+            <line x1="16" y1="10" x2="22" y2="18" stroke="white" stroke-width="2.5"/>
+            <line x1="24" y1="10" x2="30" y2="18" stroke="white" stroke-width="2.5"/>
+            <line x1="32" y1="10" x2="38" y2="18" stroke="white" stroke-width="2.5"/>
+            <line x1="40" y1="10" x2="46" y2="18" stroke="white" stroke-width="2.5"/>
+            <defs><linearGradient id="fcgrad2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#ff6b6b"/><stop offset="25%" stop-color="#ffd93d"/><stop offset="50%" stop-color="#6bcb77"/><stop offset="75%" stop-color="#4d96ff"/><stop offset="100%" stop-color="#9b59b6"/></linearGradient></defs>
+            <rect x="14" y="26" width="36" height="22" rx="3" fill="url(#fcgrad2)" opacity="0.9"/>
+          </svg>
+          <h3 data-i18n="app_fcp_title">Final Cut Pro</h3>
+          <p data-i18n="app_fcp_desc">Edición de video profesional para Mac. Aprende a crear videos cinematográficos desde cero.</p>
+          <span class="level" data-i18n="level_beg_adv">Principiante - Avanzado</span>
+        </div>
+        <div class="slider-card">
+          <svg viewBox="0 0 64 64">
+            <rect x="8" y="8" width="48" height="48" rx="8" fill="#1a1a2e" stroke="#333" stroke-width="1.5"/>
+            <text x="32" y="38" text-anchor="middle" font-size="24" font-weight="bold" fill="#9999ff" font-family="sans-serif">Pr</text>
+          </svg>
+          <h3 data-i18n="app_pr_title">Adobe Premiere Pro</h3>
+          <p data-i18n="app_pr_desc">El estándar de la industria para edición de video. Edita para YouTube, cine o televisión.</p>
+          <span class="level" data-i18n="level_all">Todos los niveles</span>
+        </div>
+        <div class="slider-card">
+          <svg viewBox="0 0 64 64">
+            <rect x="8" y="8" width="48" height="48" rx="8" fill="#1a1a2e" stroke="#333" stroke-width="1.5"/>
+            <text x="32" y="38" text-anchor="middle" font-size="24" font-weight="bold" fill="#9999ff" font-family="sans-serif">Ae</text>
+          </svg>
+          <h3 data-i18n="app_ae_title">After Effects</h3>
+          <p data-i18n="app_ae_desc">Motion graphics y efectos visuales. Crea animaciones impresionantes y VFX.</p>
+          <span class="level" data-i18n="level_int_adv">Intermedio - Avanzado</span>
+        </div>
+        <div class="slider-card">
+          <svg viewBox="0 0 64 64">
+            <rect x="8" y="8" width="48" height="48" rx="12" fill="#1a1a2e" stroke="#333" stroke-width="1.5"/>
+            <ellipse cx="32" cy="24" rx="8" ry="10" fill="#4dc9f6"/>
+            <ellipse cx="24" cy="40" rx="8" ry="10" fill="#f7d94e" transform="rotate(-30 24 40)"/>
+            <ellipse cx="40" cy="40" rx="8" ry="10" fill="#e85454" transform="rotate(30 40 40)"/>
+          </svg>
+          <h3 data-i18n="app_dv_title">DaVinci Resolve</h3>
+          <p data-i18n="app_dv_desc">Edición, color grading y postproducción todo en uno. Software profesional gratuito.</p>
+          <span class="level" data-i18n="level_beg_adv">Principiante - Avanzado</span>
+        </div>
+        <div class="slider-card">
+          <svg viewBox="0 0 64 64">
+            <rect x="8" y="8" width="48" height="48" rx="8" fill="#1a1a2e" stroke="#333" stroke-width="1.5"/>
+            <text x="32" y="38" text-anchor="middle" font-size="24" font-weight="bold" fill="#31a8ff" font-family="sans-serif">Ps</text>
+          </svg>
+          <h3 data-i18n="app_ps_title">Photoshop</h3>
+          <p data-i18n="app_ps_desc">Edición de imágenes y diseño gráfico. Retoque fotográfico y composición digital.</p>
+          <span class="level" data-i18n="level_all">Todos los niveles</span>
+        </div>
+        <div class="slider-card">
+          <svg viewBox="0 0 64 64">
+            <rect x="8" y="8" width="48" height="48" rx="12" fill="#1a1a2e" stroke="#333" stroke-width="1.5"/>
+            <path d="M20 22 L44 42 M44 22 L20 42" stroke="white" stroke-width="5" stroke-linecap="round"/>
+            <path d="M18 20 Q20 18 24 20 L28 24 Q24 22 20 24 Z" fill="white"/>
+            <path d="M46 20 Q44 18 40 20 L36 24 Q40 22 44 24 Z" fill="white"/>
+          </svg>
+          <h3 data-i18n="app_cc_title">CapCut</h3>
+          <p data-i18n="app_cc_desc">Edición de video rápida para redes sociales. Perfecto para TikTok, Instagram y YouTube.</p>
+          <span class="level" data-i18n="level_beg">Principiante</span>
+        </div>
+      </div>
+    </div>
+    <div class="slider-controls">
+      <button class="slider-btn" id="prevBtn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <button class="slider-btn" id="nextBtn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+    </div>
+    <div class="slider-dots" id="sliderDots"></div>
+  </div>
+</section>
+
+<div class="wave-divider"></div>
+
+<!-- ==================== PROGRAMAS DE APRENDIZAJE ==================== -->
+<section class="programas-section">
+  <h2 data-i18n="programas_title">Programas de aprendizaje</h2>
+  <div class="programa-card">
+    <div class="programa-info">
+      <div class="programa-tag">English, slang, phrases</div>
+      <div class="programa-name">Learning Teen</div>
+      <div class="programa-desc" data-i18n="programa_desc">TV & Streaming English — understanding dialogue, jokes, tone, and common expressions.</div>
+    </div>
+    <div class="programa-progress">
+      <span class="progress-text" data-i18n="progress_text">0% Complete</span>
+      <button class="btn-continue" data-i18n="btn_continue">Continue</button>
+    </div>
+  </div>
+  <div class="no-results" data-i18n="no_results">No results</div>
+</section>
+
+<!-- ==================== BOOKING CALENDAR ==================== -->
+<section class="booking-section" id="booking">
+  <h2 data-i18n="booking_title">Reserva tu clase</h2>
+  <p class="booking-subtitle" data-i18n="booking_subtitle">Selecciona una fecha y hora que te funcione</p>
+  
+  <div class="calendar-container">
+    <div class="calendar-left">
+      <div class="calendar-header">
+        <button class="calendar-nav" id="prevMonth">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <h3 class="calendar-month" id="currentMonth"></h3>
+        <button class="calendar-nav" id="nextMonth">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+      <div class="calendar-grid" id="calendarGrid"></div>
+    </div>
+    
+    <div class="booking-form">
+      <div class="form-group">
+        <label data-i18n="booking_date_label">Fecha seleccionada</label>
+        <input type="text" id="selectedDate" data-i18n-placeholder="booking_date_placeholder" placeholder="Selecciona una fecha" readonly>
+      </div>
+      <div class="form-group">
+        <label data-i18n="booking_time_label">Hora disponible</label>
+        <div class="time-slots" id="timeSlots">
+          <div class="time-slot" data-time="09:00">9:00 AM</div>
+          <div class="time-slot" data-time="11:00">11:00 AM</div>
+          <div class="time-slot" data-time="14:00">2:00 PM</div>
+          <div class="time-slot" data-time="16:00">4:00 PM</div>
+          <div class="time-slot" data-time="18:00">6:00 PM</div>
+          <div class="time-slot" data-time="20:00">8:00 PM</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="studentName" data-i18n="booking_name_label">Tu nombre</label>
+        <input type="text" id="studentName" data-i18n-placeholder="booking_name_placeholder" placeholder="Ingresa tu nombre completo">
+      </div>
+      <div class="form-group">
+        <label for="studentEmail" data-i18n="booking_email_label">Correo electrónico</label>
+        <input type="email" id="studentEmail" data-i18n-placeholder="booking_email_placeholder" placeholder="tu@email.com">
+      </div>
+      <div class="form-group">
+        <label for="subjectSelect" data-i18n="booking_subject_label">Materia / App a aprender</label>
+        <select id="subjectSelect">
+          <option value="" data-i18n="booking_subject_default">Selecciona una opción</option>
+          <option value="final-cut">Final Cut Pro</option>
+          <option value="premiere">Adobe Premiere Pro</option>
+          <option value="after-effects">After Effects</option>
+          <option value="davinci">DaVinci Resolve</option>
+          <option value="photoshop">Photoshop</option>
+          <option value="capcut">CapCut</option>
+          <option value="english" data-i18n="booking_subject_english">Inglés</option>
+          <option value="math" data-i18n="booking_subject_math">Matemáticas</option>
+          <option value="other" data-i18n="booking_subject_other">Otro</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="message" data-i18n="booking_message_label">Mensaje (opcional)</label>
+        <textarea id="message" rows="3" data-i18n-placeholder="booking_message_placeholder" placeholder="Cuéntame qué te gustaría aprender..."></textarea>
+      </div>
+      <button class="btn-book" onclick="bookClass()" data-i18n="booking_btn">Reservar Clase</button>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== ¿LISTO PARA COMENZAR? ==================== -->
+<section class="cta-section">
+  <h2 data-i18n="cta_title">¿Listo para comenzar?</h2>
+  <p class="cta-desc" data-i18n="cta_desc">Ingresa tu correo electrónico para obtener acceso anticipado. Nuestro equipo se pondrá en contacto contigo para ofrecerte una orientación personalizada.</p>
+  <form class="email-form" onsubmit="event.preventDefault(); alert(translations[currentLang].cta_success);">
+    <input type="email" data-i18n-placeholder="cta_placeholder" placeholder="E-mail address" required>
+    <button type="submit" data-i18n="cta_btn">Join us now!</button>
+  </form>
+</section>
+
+<!-- ==================== CONVIÉRTETE EN ESPECIALISTA ==================== -->
+<section class="especialista-section">
+  <p class="pre-title" data-i18n="especialista_pre">Todo un mundo de conocimiento</p>
+  <h2 data-i18n="especialista_title">Conviértete en especialista</h2>
+  <button class="btn-get-started" data-i18n="especialista_btn">Get started now <span>→</span></button>
+</section>
+
+<!-- ==================== FOOTER ==================== -->
+<footer>
+  <div class="footer-logo">
+    <svg viewBox="0 0 40 40" width="36" height="36" fill="none">
+      <circle cx="20" cy="20" r="15" stroke="#3b5bdb" stroke-width="1.5"/>
+      <ellipse cx="20" cy="20" rx="8" ry="15" stroke="#3b5bdb" stroke-width="1"/>
+      <line x1="5" y1="20" x2="35" y2="20" stroke="#3b5bdb" stroke-width="0.8"/>
+      <rect x="17" y="12" width="6" height="10" rx="3" fill="#d4a843"/>
+      <path d="M15 20 C15 24, 25 24, 25 20" stroke="#d4a843" stroke-width="1.2" fill="none"/>
+    </svg>
+  </div>
+  <div class="footer-links">
+    <a href="#" data-i18n="footer_terms">Terms & Conditions</a>
+    <span class="sep">|</span>
+    <a href="#" data-i18n="footer_privacy">Privacy Policy</a>
+    <span class="sep">|</span>
+    <a href="#" data-i18n="footer_cookies">Cookie policy</a>
+  </div>
+  <div class="social-icons">
+    <a href="#" aria-label="Facebook"><svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg></a>
+    <a href="#" aria-label="X"><svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+    <a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" fill="none" stroke="white" stroke-width="2"/><circle cx="12" cy="12" r="5" fill="none" stroke="white" stroke-width="2"/><circle cx="17.5" cy="6.5" r="1.5" fill="white"/></svg></a>
+    <a href="#" aria-label="LinkedIn"><svg viewBox="0 0 24 24"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-4 0v7h-4v-7a6 6 0 016-6zM2 9h4v12H2zM4 6a2 2 0 100-4 2 2 0 000 4z"/></svg></a>
+    <a href="#" aria-label="Pinterest"><svg viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.236 2.636 7.855 6.356 9.312-.088-.791-.167-2.005.035-2.868.181-.78 1.172-4.97 1.172-4.97s-.299-.598-.299-1.482c0-1.388.806-2.425 1.808-2.425.853 0 1.265.64 1.265 1.408 0 .858-.546 2.14-.828 3.33-.236.995.499 1.806 1.48 1.806 1.778 0 3.144-1.874 3.144-4.58 0-2.393-1.72-4.068-4.177-4.068-2.845 0-4.515 2.135-4.515 4.34 0 .859.331 1.781.745 2.282a.3.3 0 01.069.288l-.278 1.133c-.044.183-.145.222-.335.134-1.249-.581-2.03-2.407-2.03-3.874 0-3.154 2.292-6.052 6.608-6.052 3.469 0 6.165 2.473 6.165 5.776 0 3.447-2.173 6.22-5.19 6.22-1.013 0-1.965-.527-2.291-1.148l-.623 2.378c-.226.869-.835 1.958-1.244 2.621.937.29 1.931.446 2.962.446 5.523 0 10-4.477 10-10S17.523 2 12 2z"/></svg></a>
+    <a href="#" aria-label="Vimeo"><svg viewBox="0 0 24 24"><path d="M23.977 6.416c-.105 2.338-1.739 5.543-4.894 9.609-3.268 4.247-6.026 6.37-8.29 6.37-1.409 0-2.578-1.294-3.553-3.881L5.322 11.4C4.603 8.816 3.834 7.522 3.01 7.522c-.179 0-.806.378-1.881 1.132L0 7.197c1.185-1.044 2.351-2.084 3.501-3.128C5.08 2.701 6.266 1.984 7.055 1.91c1.867-.18 3.016 1.1 3.447 3.838.465 2.953.789 4.789.971 5.507.539 2.45 1.131 3.674 1.776 3.674.502 0 1.256-.796 2.265-2.385 1.004-1.589 1.54-2.797 1.612-3.628.144-1.371-.395-2.061-1.614-2.061-.574 0-1.167.121-1.777.391 1.184-3.868 3.434-5.757 6.743-5.637 2.473.06 3.658 1.664 3.553 4.797z"/></svg></a>
+    <a href="#" aria-label="TikTok"><svg viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1v-3.5a6.37 6.37 0 00-.79-.05A6.34 6.34 0 003.15 15.2a6.34 6.34 0 0010.86 4.46V13a8.28 8.28 0 005.58 2.17v-3.44a4.85 4.85 0 01-1-.14z"/></svg></a>
+  </div>
+  <p class="copyright">Copyright © 2026</p>
+</footer>
+
+<!-- ==================== JAVASCRIPT ==================== -->
+<script>
+// ==================== TRANSLATIONS DICTIONARY ====================
+const translations = {
+  es: {
+    hero_title: "Tutoría personalizada, diseñada para ti",
+    hero_desc: "Eleva tu aprendizaje directamente conmigo a tu ritmo, con clases individuales y un plan adaptado a tus objetivos.",
+    brand_name: "Befluente Tutoring on Demand",
+    tablet_design: "Diseño",
+    tablet_subtitle: "ONLINE TUTORING",
+    aprende_title: "Aprende. Mejora.",
+    aprende_desc: "Clases personalizadas en línea con herramientas interactivas, materiales digitales, evaluaciones y recursos adaptados a tus necesidades. Ofrezco formación en inglés, español, francés, matemáticas, cine y preparación para entrevistas profesionales.",
+    como_title: "Cómo te ayudo",
+    como_desc: "Te ayudo a desarrollar tus habilidades y alcanzar tus objetivos académicos o profesionales mediante clases personalizadas, prácticas y flexibles.",
+    como_card1_title: "Aprendizaje personalizado",
+    como_card1_desc: "Diseño cada clase de acuerdo con tu nivel, tus objetivos y tu ritmo de aprendizaje, para que recibas la orientación y el apoyo que realmente necesitas.",
+    como_card2_title: "Clases en línea",
+    como_card2_desc: "Aprende desde cualquier lugar a través de sesiones individuales por videollamada, con atención directa, materiales interactivos y seguimiento personalizado.",
+    beneficios_title: "Beneficios de aprender conmigo",
+    ben1_title: "Enfoque práctico",
+    ben1_desc: "Mis clases están diseñadas para desarrollar habilidades que puedas aplicar en situaciones reales. Trabajaremos con ejercicios, ejemplos y actividades enfocadas en tus objetivos.",
+    ben2_title: "Perspectiva global",
+    ben2_desc: "Aprende habilidades y conocimientos que puedes aplicar en contextos académicos, profesionales e internacionales, con un enfoque adaptado a tus metas.",
+    ben3_title: "Enfocado en tus objetivos",
+    ben3_desc: "Ya sea que quieras mejorar tu desempeño académico, prepararte para una entrevista, avanzar profesionalmente o aprender un nuevo idioma, cada sesión estará enfocada en ayudarte a progresar.",
+    apps_title: "Apps que enseño",
+    apps_subtitle: "Domina las herramientas profesionales más demandadas",
+    app_fcp_title: "Final Cut Pro",
+    app_fcp_desc: "Edición de video profesional para Mac. Aprende a crear videos cinematográficos desde cero.",
+    app_pr_title: "Adobe Premiere Pro",
+    app_pr_desc: "El estándar de la industria para edición de video. Edita para YouTube, cine o televisión.",
+    app_ae_title: "After Effects",
+    app_ae_desc: "Motion graphics y efectos visuales. Crea animaciones impresionantes y VFX.",
+    app_dv_title: "DaVinci Resolve",
+    app_dv_desc: "Edición, color grading y postproducción todo en uno. Software profesional gratuito.",
+    app_ps_title: "Photoshop",
+    app_ps_desc: "Edición de imágenes y diseño gráfico. Retoque fotográfico y composición digital.",
+    app_cc_title: "CapCut",
+    app_cc_desc: "Edición de video rápida para redes sociales. Perfecto para TikTok, Instagram y YouTube.",
+    level_beg_adv: "Principiante - Avanzado",
+    level_all: "Todos los niveles",
+    level_int_adv: "Intermedio - Avanzado",
+    level_beg: "Principiante",
+    programas_title: "Programas de aprendizaje",
+    programa_desc: "TV & Streaming English — understanding dialogue, jokes, tone, and common expressions.",
+    progress_text: "0% Complete",
+    btn_continue: "Continue",
+    no_results: "No results",
+    booking_title: "Reserva tu clase",
+    booking_subtitle: "Selecciona una fecha y hora que te funcione",
+    booking_date_label: "Fecha seleccionada",
+    booking_date_placeholder: "Selecciona una fecha",
+    booking_time_label: "Hora disponible",
+    booking_name_label: "Tu nombre",
+    booking_name_placeholder: "Ingresa tu nombre completo",
+    booking_email_label: "Correo electrónico",
+    booking_email_placeholder: "tu@email.com",
+    booking_subject_label: "Materia / App a aprender",
+    booking_subject_default: "Selecciona una opción",
+    booking_subject_english: "Inglés",
+    booking_subject_math: "Matemáticas",
+    booking_subject_other: "Otro",
+    booking_message_label: "Mensaje (opcional)",
+    booking_message_placeholder: "Cuéntame qué te gustaría aprender...",
+    booking_btn: "Reservar Clase",
+    cta_title: "¿Listo para comenzar?",
+    cta_desc: "Ingresa tu correo electrónico para obtener acceso anticipado. Nuestro equipo se pondrá en contacto contigo para ofrecerte una orientación personalizada.",
+    cta_placeholder: "E-mail address",
+    cta_btn: "Join us now!",
+    cta_success: "¡Gracias! Te contactaremos pronto.",
+    especialista_pre: "Todo un mundo de conocimiento",
+    especialista_title: "Conviértete en especialista",
+    especialista_btn: "Get started now →",
+    footer_terms: "Terms & Conditions",
+    footer_privacy: "Privacy Policy",
+    footer_cookies: "Cookie policy",
+    alert_date: "Por favor selecciona una fecha",
+    alert_time: "Por favor selecciona una hora",
+    alert_fields: "Por favor completa todos los campos obligatorios",
+    alert_success_prefix: "¡Reserva confirmada!\n\nFecha: ",
+    alert_success_mid: "\nHora: ",
+    alert_success_name: "\nNombre: ",
+    alert_success_subject: "\nMateria: ",
+    alert_success_suffix: "\n\nTe enviaremos un correo de confirmación a "
+  },
+  en: {
+    hero_title: "Personalized tutoring, designed for you",
+    hero_desc: "Elevate your learning directly with me at your own pace, with individual classes and a plan adapted to your goals.",
+    brand_name: "Befluente Tutoring on Demand",
+    tablet_design: "Design",
+    tablet_subtitle: "ONLINE TUTORING",
+    aprende_title: "Learn. Improve.",
+    aprende_desc: "Personalized online classes with interactive tools, digital materials, assessments, and resources adapted to your needs. I offer training in English, Spanish, French, math, film, and professional interview preparation.",
+    como_title: "How I help you",
+    como_desc: "I help you develop your skills and reach your academic or professional goals through personalized, practical, and flexible classes.",
+    como_card1_title: "Personalized learning",
+    como_card1_desc: "I design each class according to your level, goals, and learning pace, so you receive the guidance and support you truly need.",
+    como_card2_title: "Online classes",
+    como_card2_desc: "Learn from anywhere through individual video call sessions, with direct attention, interactive materials, and personalized follow-up.",
+    beneficios_title: "Benefits of learning with me",
+    ben1_title: "Practical approach",
+    ben1_desc: "My classes are designed to develop skills you can apply in real-life situations. We will work with exercises, examples, and activities focused on your goals.",
+    ben2_title: "Global perspective",
+    ben2_desc: "Learn skills and knowledge you can apply in academic, professional, and international contexts, with an approach adapted to your goals.",
+    ben3_title: "Focused on your goals",
+    ben3_desc: "Whether you want to improve your academic performance, prepare for an interview, advance professionally, or learn a new language, every session will be focused on helping you progress.",
+    apps_title: "Apps I teach",
+    apps_subtitle: "Master the most in-demand professional tools",
+    app_fcp_title: "Final Cut Pro",
+    app_fcp_desc: "Professional video editing for Mac. Learn to create cinematic videos from scratch.",
+    app_pr_title: "Adobe Premiere Pro",
+    app_pr_desc: "The industry standard for video editing. Edit for YouTube, film, or television.",
+    app_ae_title: "After Effects",
+    app_ae_desc: "Motion graphics and visual effects. Create impressive animations and VFX.",
+    app_dv_title: "DaVinci Resolve",
+    app_dv_desc: "Editing, color grading, and post-production all in one. Free professional software.",
+    app_ps_title: "Photoshop",
+    app_ps_desc: "Image editing and graphic design. Photo retouching and digital composition.",
+    app_cc_title: "CapCut",
+    app_cc_desc: "Fast video editing for social media. Perfect for TikTok, Instagram, and YouTube.",
+    level_beg_adv: "Beginner - Advanced",
+    level_all: "All levels",
+    level_int_adv: "Intermediate - Advanced",
+    level_beg: "Beginner",
+    programas_title: "Learning Programs",
+    programa_desc: "TV & Streaming English — understanding dialogue, jokes, tone, and common expressions.",
+    progress_text: "0% Complete",
+    btn_continue: "Continue",
+    no_results: "No results",
+    booking_title: "Book your class",
+    booking_subtitle: "Select a date and time that works for you",
+    booking_date_label: "Selected date",
+    booking_date_placeholder: "Select a date",
+    booking_time_label: "Available time",
+    booking_name_label: "Your name",
+    booking_name_placeholder: "Enter your full name",
+    booking_email_label: "Email address",
+    booking_email_placeholder: "you@email.com",
+    booking_subject_label: "Subject / App to learn",
+    booking_subject_default: "Select an option",
+    booking_subject_english: "English",
+    booking_subject_math: "Mathematics",
+    booking_subject_other: "Other",
+    booking_message_label: "Message (optional)",
+    booking_message_placeholder: "Tell me what you would like to learn...",
+    booking_btn: "Book Class",
+    cta_title: "Ready to start?",
+    cta_desc: "Enter your email to get early access. Our team will contact you to offer personalized guidance.",
+    cta_placeholder: "E-mail address",
+    cta_btn: "Join us now!",
+    cta_success: "Thank you! We will contact you soon.",
+    especialista_pre: "A whole world of knowledge",
+    especialista_title: "Become a specialist",
+    especialista_btn: "Get started now →",
+    footer_terms: "Terms & Conditions",
+    footer_privacy: "Privacy Policy",
+    footer_cookies: "Cookie policy",
+    alert_date: "Please select a date",
+    alert_time: "Please select a time",
+    alert_fields: "Please complete all required fields",
+    alert_success_prefix: "Booking confirmed!\n\nDate: ",
+    alert_success_mid: "\nTime: ",
+    alert_success_name: "\nName: ",
+    alert_success_subject: "\nSubject: ",
+    alert_success_suffix: "\n\nWe will send a confirmation email to "
+  }
+};
+
+let currentLang = 'es';
+
+function setLanguage(lang) {
+  currentLang = lang;
+  document.documentElement.lang = lang;
+  
+  // Update buttons
+  document.getElementById('btn-es').classList.toggle('active', lang === 'es');
+  document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+  
+  // Update text content
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (translations[lang][key]) {
+      el.textContent = translations[lang][key];
+    }
+  });
+  
+  // Update placeholders
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const key = el.getAttribute('data-i18n-placeholder');
+    if (translations[lang][key]) {
+      el.placeholder = translations[lang][key];
+    }
+  });
+
+  // Re-render calendar to update month/day names
+  generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
+}
+
+// ==================== APPS SLIDER ====================
+const sliderTrack = document.getElementById('sliderTrack');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+const sliderDots = document.getElementById('sliderDots');
+
+let currentIndex = 0;
+const cards = document.querySelectorAll('.slider-card');
+const totalSlides = cards.length;
+
+cards.forEach((_, index) => {
+  const dot = document.createElement('div');
+  dot.classList.add('slider-dot');
+  if (index === 0) dot.classList.add('active');
+  dot.addEventListener('click', () => goToSlide(index));
+  sliderDots.appendChild(dot);
+});
+
+const dots = document.querySelectorAll('.slider-dot');
+
+function updateSlider() {
+  const cardWidth = cards[0].offsetWidth + 24;
+  const visibleCards = getVisibleCards();
+  const maxIndex = totalSlides - visibleCards;
+  
+  if (currentIndex > maxIndex) currentIndex = maxIndex;
+  if (currentIndex < 0) currentIndex = 0;
+  
+  sliderTrack.style.transform = `translateX(-${currentIndex * cardWidth}px)`;
+  
+  dots.forEach((dot, index) => {
+    dot.classList.toggle('active', index === currentIndex);
+  });
+}
+
+function getVisibleCards() {
+  if (window.innerWidth <= 640) return 1;
+  if (window.innerWidth <= 968) return 2;
+  return 3;
+}
+
+function goToSlide(index) {
+  currentIndex = index;
+  updateSlider();
+}
+
+prevBtn.addEventListener('click', () => { currentIndex--; updateSlider(); });
+nextBtn.addEventListener('click', () => { currentIndex++; updateSlider(); });
+window.addEventListener('resize', updateSlider);
+
+setInterval(() => {
+  currentIndex++;
+  if (currentIndex >= totalSlides - getVisibleCards() + 1) currentIndex = 0;
+  updateSlider();
+}, 5000);
+
+// ==================== BOOKING CALENDAR ====================
+const calendarGrid = document.getElementById('calendarGrid');
+const currentMonthEl = document.getElementById('currentMonth');
+const prevMonthBtn = document.getElementById('prevMonth');
+const nextMonthBtn = document.getElementById('nextMonth');
+const selectedDateInput = document.getElementById('selectedDate');
+const timeSlots = document.querySelectorAll('.time-slot');
+
+let currentDate = new Date();
+let selectedDate = null;
+let selectedTime = null;
+
+const monthNames = {
+  es: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
+  en: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+};
+
+const dayNames = {
+  es: ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'],
+  en: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+};
+
+function generateCalendar(year, month) {
+  calendarGrid.innerHTML = '';
+  
+  dayNames[currentLang].forEach(day => {
+    const dayHeader = document.createElement('div');
+    dayHeader.classList.add('calendar-day-header');
+    dayHeader.textContent = day;
+    calendarGrid.appendChild(dayHeader);
+  });
+  
+  currentMonthEl.textContent = `${monthNames[currentLang][month]} ${year}`;
+  
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const today = new Date();
+  
+  for (let i = 0; i < firstDay; i++) {
+    const emptyCell = document.createElement('div');
+    emptyCell.classList.add('calendar-day', 'empty');
+    calendarGrid.appendChild(emptyCell);
+  }
+  
+  for (let day = 1; day <= daysInMonth; day++) {
+    const dayCell = document.createElement('div');
+    dayCell.classList.add('calendar-day');
+    dayCell.textContent = day;
+    
+    const cellDate = new Date(year, month, day);
+    const isToday = cellDate.toDateString() === today.toDateString();
+    const isPast = cellDate < new Date(today.setHours(0, 0, 0, 0));
+    
+    if (isToday) dayCell.style.border = '1px solid var(--blue-primary)';
+    if (isPast) {
+      dayCell.classList.add('disabled');
+    } else {
+      dayCell.addEventListener('click', () => selectDate(year, month, day));
+    }
+    
+    if (selectedDate && selectedDate.getDate() === day && selectedDate.getMonth() === month && selectedDate.getFullYear() === year) {
+      dayCell.classList.add('selected');
+    }
+    
+    calendarGrid.appendChild(dayCell);
+  }
+}
+
+function selectDate(year, month, day) {
+  selectedDate = new Date(year, month, day);
+  const monthStr = monthNames[currentLang][month];
+  selectedDateInput.value = currentLang === 'es' ? `${day} de ${monthStr} de ${year}` : `${monthStr} ${day}, ${year}`;
+  
+  document.querySelectorAll('.calendar-day').forEach(cell => {
+    cell.classList.remove('selected');
+    if (cell.textContent == day && !cell.classList.contains('empty')) {
+      cell.classList.add('selected');
+    }
+  });
+}
+
+timeSlots.forEach(slot => {
+  slot.addEventListener('click', () => {
+    timeSlots.forEach(s => s.classList.remove('selected'));
+    slot.classList.add('selected');
+    selectedTime = slot.dataset.time;
+  });
+});
+
+prevMonthBtn.addEventListener('click', () => {
+  currentDate.setMonth(currentDate.getMonth() - 1);
+  generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
+});
+
+nextMonthBtn.addEventListener('click', () => {
+  currentDate.setMonth(currentDate.getMonth() + 1);
+  generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
+});
+
+generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
+
+function bookClass() {
+  const name = document.getElementById('studentName').value;
+  const email = document.getElementById('studentEmail').value;
+  const subjectSelect = document.getElementById('subjectSelect');
+  const subject = subjectSelect.options[subjectSelect.selectedIndex].text;
+  
+  if (!selectedDate) { alert(translations[currentLang].alert_date); return; }
+  if (!selectedTime) { alert(translations[currentLang].alert_time); return; }
+  if (!name || !email || subjectSelect.value === "") { alert(translations[currentLang].alert_fields); return; }
+  
+  const t = translations[currentLang];
+  alert(`${t.alert_success_prefix}${selectedDateInput.value}${t.alert_success_mid}${selectedTime}${t.alert_success_name}${name}${t.alert_success_subject}${subject}${t.alert_success_suffix}${email}`);
+  
+  selectedDate = null;
+  selectedTime = null;
+  selectedDateInput.value = '';
+  document.getElementById('studentName').value = '';
+  document.getElementById('studentEmail').value = '';
+  subjectSelect.value = '';
+  document.getElementById('message').value = '';
+  timeSlots.forEach(s => s.classList.remove('selected'));
+  generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
+}
+</script>
+
+</body>
+</html>
