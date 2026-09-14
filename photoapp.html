@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LightLab v2.3 - Complete Photography Suite</title>
+<style>
+:root {
+    --bg-dark: #0f0f0f;
+    --bg-panel: #1a1a1a;
+    --bg-elevated: #252525;
+    --text-main: #f0f0f0;
+    --text-dim: #999;
+    --accent: #00e5ff;
+    --warning: #ff5252;
+    --success: #00e676;
+    --sidebar-width: 320px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
+body { background: var(--bg-dark); color: var(--text-main); height: 100vh; overflow: hidden; display: flex; }
+
+#sidebar { width: var(--sidebar-width); background: var(--bg-panel); border-right: 1px solid #333; display: flex; flex-direction: column; overflow-y: auto; z-index: 50; transition: transform 0.3s; }
+#sidebar.collapsed { transform: translateX(-320px); }
+.sidebar-header { padding: 15px; background: linear-gradient(135deg, #1a1a1a, #252525); border-bottom: 1px solid #333; position: sticky; top: 0; background: var(--bg-panel); z-index: 10; }
+.sidebar-header h2 { color: var(--accent); font-size: 1.1rem; margin-bottom: 3px; }
+.sidebar-header p { color: var(--text-dim); font-size: 0.8rem; }
+.sidebar-content { padding: 12px; }
+.tip-card { background: var(--bg-elevated); border-left: 3px solid var(--accent); padding: 12px; margin-bottom: 10px; border-radius: 0 6px 6px 0; animation: slideIn 0.3s ease; }
+@keyframes slideIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+.tip-card h3 { color: var(--accent); font-size: 0.9rem; margin-bottom: 5px; }
+.tip-card p { color: var(--text-main); font-size: 0.8rem; line-height: 1.5; }
+.badge { display: inline-block; background: var(--accent); color: #000; padding: 2px 8px; border-radius: 3px; font-weight: bold; font-size: 0.75rem; margin-bottom: 6px; }
+.sidebar-toggle { position: absolute; left: var(--sidebar-width); top: 10px; background: var(--bg-panel); border: 1px solid #444; color: var(--accent); width: 28px; height: 28px; border-radius: 0 4px 4px 0; cursor: pointer; z-index: 100; transition: left 0.3s; display: flex; align-items: center; justify-content: center; }
+#sidebar.collapsed + .sidebar-toggle { left: 0; }
+
+#app { flex: 1; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+#tabs { display: flex; background: var(--bg-panel); border-bottom: 1px solid #333; padding: 8px 15px; gap: 5px; flex-shrink: 0; }
+.tab-btn { background: transparent; border: 1px solid #444; color: var(--text-dim); padding: 8px 20px; border-radius: 6px 6px 0 0; cursor: pointer; font-size: 0.9rem; font-weight: 600; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
+.tab-btn:hover { color: var(--accent); border-color: var(--accent); }
+.tab-btn.active { background: var(--bg-elevated); color: var(--accent); border-color: var(--accent); border-bottom-color: var(--bg-elevated); }
+
+.mode-container { display: none; flex: 1; flex-direction: column; overflow: hidden; min-height: 0; }
+.mode-container.active { display: flex; }
+
+.viewfinder { flex: 1; position: relative; background: #000; overflow: hidden; min-height: 0; }
+#photo-view, #video-view { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+.scene-layer { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform-origin: center; }
+#p-blur, #p-sharp, #v-blur, #v-sharp { width: 100%; height: 100%; }
+
+#metering-overlay { position: absolute; inset: 0; z-index: 8; pointer-events: none; display: none; }
+.meter-spot { position: absolute; border: 2px solid var(--accent); border-radius: 50%; box-shadow: 0 0 0 1px rgba(0,0,0,0.5); }
+.meter-center { position: absolute; inset: 0; background: radial-gradient(circle, rgba(0,229,255,0.15) 0%, transparent 70%); }
+
+#zebra-overlay { position: absolute; inset: 0; z-index: 9; pointer-events: none; display: none; background: repeating-linear-gradient(45deg, rgba(255,255,255,0.5) 0px, rgba(255,255,255,0.5) 2px, transparent 2px, transparent 6px); }
+#waveform-container { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); width: 280px; height: 80px; background: rgba(0,0,0,0.9); border: 1px solid #444; border-radius: 6px; z-index: 20; display: none; padding: 5px; }
+#waveform-canvas { width: 100%; height: 100%; }
+
+#lighting-wrapper { display: flex; height: 100%; gap: 15px; padding: 15px; }
+#lighting-canvas-container { flex: 1; background: var(--bg-elevated); border-radius: 8px; overflow: hidden; position: relative; }
+#lighting-canvas { width: 100%; height: 100%; display: block; cursor: crosshair; }
+#lighting-preview { width: 350px; background: var(--bg-elevated); border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; }
+#preview-image-container { flex: 1; position: relative; overflow: hidden; background: #000; }
+#preview-image { width: 100%; height: 100%; object-fit: cover; transition: filter 0.3s; }
+
+.lighting-ui { position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.9); border: 1px solid #444; border-radius: 8px; padding: 12px; z-index: 20; min-width: 220px; backdrop-filter: blur(10px); max-height: 300px; overflow-y: auto; }
+.lighting-ui h3 { color: var(--accent); font-size: 0.9rem; margin-bottom: 10px; }
+.light-item { background: var(--bg-panel); padding: 8px; border-radius: 4px; margin-bottom: 8px; font-size: 0.8rem; cursor: pointer; transition: all 0.2s; }
+.light-item:hover { background: #333; }
+.light-item.selected { border-left: 3px solid var(--accent); background: #2a2a2a; }
+.light-item .light-name { font-weight: bold; color: var(--accent); margin-bottom: 3px; }
+.light-item .light-info { color: var(--text-dim); font-size: 0.75rem; }
+.add-light-btn { background: var(--accent); color: #000; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; font-weight: bold; width: 100%; margin-top: 8px; }
+.lighting-presets { margin-top: 12px; padding-top: 12px; border-top: 1px solid #444; }
+.lighting-presets h4 { color: var(--text-dim); font-size: 0.75rem; margin-bottom: 8px; text-transform: uppercase; }
+.preset-btn { background: #333; border: 1px solid #444; color: var(--text-main); padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; margin: 3px; display: inline-block; }
+.preset-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+.info-panel { position: absolute; bottom: 15px; left: 15px; background: rgba(0,0,0,0.9); border: 1px solid #444; border-radius: 8px; padding: 10px 14px; z-index: 20; font-size: 0.8rem; backdrop-filter: blur(10px); max-width: 350px; }
+.info-panel .info-title { color: var(--accent); font-weight: bold; margin-bottom: 4px; }
+.info-panel .info-value { color: var(--text-main); font-variant-numeric: tabular-nums; }
+
+.hud { background: var(--bg-panel); border-top: 1px solid #333; padding: 12px 15px; max-height: 40vh; overflow-y: auto; flex-shrink: 0; }
+.hud-row { display: flex; gap: 12px; flex-wrap: wrap; justify-content: space-around; margin-bottom: 10px; }
+.control-group { display: flex; flex-direction: column; align-items: center; min-width: 110px; flex: 1; max-width: 160px; }
+.control-label { font-size: 0.7rem; color: var(--text-dim); margin-bottom: 3px; text-transform: uppercase; letter-spacing: 0.5px; }
+.control-value { font-size: 1.05rem; font-weight: bold; color: var(--accent); margin-bottom: 5px; font-variant-numeric: tabular-nums; }
+input[type="range"] { -webkit-appearance: none; width: 100%; height: 5px; background: #333; border-radius: 3px; outline: none; }
+input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; background: var(--accent); border-radius: 50%; cursor: pointer; }
+select { background: #333; color: white; border: 1px solid #444; border-radius: 4px; padding: 5px 8px; font-size: 0.85rem; width: 100%; cursor: pointer; }
+
+.action-bar { position: absolute; right: 15px; top: 15px; display: flex; flex-direction: column; gap: 8px; z-index: 30; }
+.action-btn { background: rgba(30,30,30,0.95); border: 1px solid #555; color: var(--text-main); padding: 9px 15px; border-radius: 20px; cursor: pointer; font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; gap: 6px; backdrop-filter: blur(10px); transition: all 0.2s; white-space: nowrap; }
+.action-btn:hover { border-color: var(--accent); color: var(--accent); }
+.action-btn.active { background: var(--accent); color: #000; border-color: var(--accent); }
+.action-btn.capture { background: var(--accent); color: #000; border-color: var(--accent); }
+
+.exposure-meter { position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); border: 1px solid #444; border-radius: 15px; padding: 6px 18px; display: flex; align-items: center; gap: 10px; z-index: 20; font-size: 0.75rem; color: var(--text-dim); min-width: 280px; justify-content: space-between; }
+.meter-scale { display: flex; justify-content: space-between; flex: 1; position: relative; }
+.meter-needle { position: absolute; top: 50%; width: 3px; height: 20px; background: var(--accent); transform: translate(-50%, -50%); border-radius: 2px; transition: left 0.2s; box-shadow: 0 0 8px var(--accent); }
+
+.sync-warning { position: absolute; top: 15px; left: 50%; transform: translateX(-50%); background: var(--warning); color: white; padding: 7px 16px; border-radius: 5px; font-size: 0.8rem; font-weight: bold; display: none; z-index: 25; }
+.shutter-overlay { position: absolute; inset: 0; pointer-events: none; z-index: 15; }
+.curtain { position: absolute; left: 0; width: 100%; height: 50%; background: #000; transition: transform 0.1s; }
+#p-curtain-top { top: 0; transform: translateY(-100%); }
+#p-curtain-bottom { bottom: 0; transform: translateY(100%); }
+.grid-overlay { position: absolute; inset: 0; pointer-events: none; z-index: 12; display: none; background-image: linear-gradient(to right, rgba(255,255,255,0.4) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.4) 1px, transparent 1px); background-size: 33.33% 33.33%; }
+.scene-selector { position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.9); border: 1px solid #444; border-radius: 8px; padding: 10px; z-index: 25; }
+.scene-selector select { background: #333; color: white; border: 1px solid #555; padding: 6px 10px; border-radius: 4px; font-size: 0.85rem; cursor: pointer; }
+
+/* Focus indicator */
+.focus-indicator { position: absolute; top: 15px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.9); border: 1px solid var(--accent); border-radius: 8px; padding: 8px 16px; z-index: 25; font-size: 0.85rem; color: var(--accent); display: none; }
+.focus-indicator.visible { display: block; }
+</style>
+</head>
+<body>
+
+<svg style="position:absolute;width:0;height:0">
+    <filter id="noise-filter">
+        <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" result="noise"/>
+        <feColorMatrix type="matrix" id="noise-matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 0.1 0" in="noise" result="coloredNoise"/>
+        <feBlend in="SourceGraphic" in2="coloredNoise" mode="overlay"/>
+    </filter>
+</svg>
+
+<div id="sidebar">
+    <div class="sidebar-header">
+        <h2> Learning Guide</h2>
+        <p>Contextual tips for your settings</p>
+    </div>
+    <div class="sidebar-content" id="sidebar-content">
+        <div class="tip-card">
+            <span class="badge">Welcome</span>
+            <h3>Three Professional Modes</h3>
+            <p>📷 <b>Photo Mode:</b> Master exposure, DoF, metering modes<br>
+             <b>Video Mode:</b> Frame rates, zebras, waveforms, codecs<br>
+             <b>Lighting Studio:</b> Inverse-square law with live preview</p>
+        </div>
+    </div>
+</div>
+<button class="sidebar-toggle" onclick="toggleSidebar()"></button>
+
+<div id="app">
+    <div id="tabs">
+        <button class="tab-btn active" onclick="switchMode('photo')"> Photo</button>
+        <button class="tab-btn" onclick="switchMode('video')"> Video</button>
+        <button class="tab-btn" onclick="switchMode('lighting')">💡 Lighting Studio</button>
+    </div>
+
+    <!-- PHOTO MODE -->
+    <div id="photo-mode" class="mode-container active">
+        <div class="viewfinder" id="photo-viewfinder">
+            <div class="scene-selector">
+                <select id="p-scene" onchange="changeScene()">
+                    <option value="portrait">Portrait</option>
+                    <option value="landscape">Landscape</option>
+                    <option value="night">Night Photography</option>
+                    <option value="tungsten">Indoor/Tungsten</option>
+                    <option value="studio">Studio</option>
+                </select>
+            </div>
+            <div class="focus-indicator" id="focus-indicator">Focus: Subject (Foreground)</div>
+            <div id="photo-view">
+                <img id="p-background" class="scene-layer" src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&q=80" style="z-index:1">
+                <img id="p-subject" class="scene-layer" src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=1200&q=80" style="z-index:2">
+                <div class="grid-overlay" id="p-grid"></div>
+                <div id="metering-overlay">
+                    <div class="meter-center" id="meter-center-zone"></div>
+                    <div class="meter-spot" id="meter-spot-zone" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:80px;height:80px;"></div>
+                </div>
+            </div>
+            <div class="shutter-overlay">
+                <div id="p-curtain-top" class="curtain"></div>
+                <div id="p-curtain-bottom" class="curtain"></div>
+            </div>
+            <div class="sync-warning" id="p-sync">⚠️ EXCEEDS SYNC SPEED (1/250s)</div>
+            <div class="exposure-meter">
+                <span style="margin-right:8px">-3</span><span style="margin-right:8px">-2</span><span style="margin-right:8px">-1</span>
+                <span style="color:#fff;font-weight:bold;margin:0 12px">0</span>
+                <span style="margin-left:8px">+1</span><span style="margin-left:8px">+2</span><span style="margin-left:8px">+3</span>
+                <div class="meter-scale"><div class="meter-needle" id="p-needle" style="left:50%"></div></div>
+            </div>
+            <div class="action-bar">
+                <button class="action-btn capture" onclick="takePhoto()">📸 Take Photo</button>
+                <button class="action-btn" id="p-flash-btn" onclick="toggleFlash()">⚡ Flash</button>
+                <button class="action-btn" id="p-grid-btn" onclick="toggleGrid()">⊞ Grid</button>
+            </div>
+        </div>
+        <div class="hud">
+            <div class="hud-row">
+                <div class="control-group">
+                    <div class="control-label">Shutter Speed</div>
+                    <div class="control-value" id="p-shutter-val">1/125</div>
+                    <input type="range" id="p-shutter" min="0" max="13" value="6">
+                </div>
+                <div class="control-group">
+                    <div class="control-label">Aperture</div>
+                    <div class="control-value" id="p-aperture-val">f/5.6</div>
+                    <input type="range" id="p-aperture" min="0" max="8" value="4">
+                </div>
+                <div class="control-group">
+                    <div class="control-label">ISO</div>
+                    <div class="control-value" id="p-iso-val">100</div>
+                    <input type="range" id="p-iso" min="0" max="6" value="0">
+                </div>
+                <div class="control-group">
+                    <div class="control-label">Focal Length</div>
+                    <div class="control-value" id="p-focal-val">50mm</div>
+                    <input type="range" id="p-focal" min="0" max="5" value="2">
+                </div>
+                <div class="control-group">
+                    <div class="control-label">Focus Distance</div>
+                    <div class="control-value" id="p-focus-val">Subject</div>
+                    <input type="range" id="p-focus" min="0" max="100" value="50">
+                </div>
+            </div>
+            <div class="hud-row">
+                <div class="control-group">
+                    <div class="control-label">Metering Mode</div>
+                    <div class="control-value" id="p-meter-val" style="font-size:0.85rem">Evaluative</div>
+                    <select id="p-meter" onchange="updatePhoto()">
+                        <option value="evaluative">Evaluative/Matrix</option>
+                        <option value="center">Center-Weighted</option>
+                        <option value="spot">Spot (Center 5%)</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <div class="control-label">White Balance</div>
+                    <div class="control-value" id="p-wb-val" style="font-size:0.85rem">Daylight</div>
+                    <select id="p-wb" onchange="updatePhoto()">
+                        <option value="5500">Daylight (5500K)</option>
+                        <option value="3200">Tungsten (3200K)</option>
+                        <option value="7000">Shade (7000K)</option>
+                        <option value="4000">Fluorescent (4000K)</option>
+                        <option value="6000">Cloudy (6000K)</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <div class="control-label">Picture Profile</div>
+                    <div class="control-value" id="p-pp-val" style="font-size:0.85rem">PP1 (Standard)</div>
+                    <select id="p-pp" onchange="updatePhoto()">
+                        <option value="1">PP1 (Standard)</option>
+                        <option value="7">PP7 (Cine)</option>
+                        <option value="8">PP8 (S-Log3)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- VIDEO MODE -->
+    <div id="video-mode" class="mode-container">
+        <div class="viewfinder" id="video-viewfinder">
+            <div id="video-view">
+                <img id="v-blur" class="scene-layer" src="https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=1200&q=80">
+                <img id="v-sharp" class="scene-layer" src="https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=1200&q=80">
+                <div id="zebra-overlay"></div>
+            </div>
+            <div id="waveform-container">
+                <canvas id="waveform-canvas" width="270" height="70"></canvas>
+            </div>
+            <div class="info-panel" id="v-info">
+                <div class="info-title">Video Settings</div>
+                <div class="info-value" id="v-info-text">24fps · 180° · 4K 16:9 · H.264</div>
+            </div>
+            <div class="action-bar">
+                <button class="action-btn" id="v-zebra-btn" onclick="toggleZebras()">🦓 Zebras</button>
+                <button class="action-btn" id="v-wave-btn" onclick="toggleWaveform()">📊 Waveform</button>
+                <button class="action-btn" id="v-rec-btn" onclick="toggleRec()"> REC</button>
+            </div>
+        </div>
+        <div class="hud">
+            <div class="hud-row">
+                <div class="control-group">
+                    <div class="control-label">Frame Rate</div>
+                    <div class="control-value" id="v-fps-val">24 fps</div>
+                    <select id="v-fps" onchange="updateVideo()">
+                        <option value="24">24 fps (Cinema)</option>
+                        <option value="25">25 fps (PAL)</option>
+                        <option value="30">30 fps (NTSC)</option>
+                        <option value="60">60 fps (Slow-mo)</option>
+                        <option value="120">120 fps (Super slow)</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <div class="control-label">Shutter Angle</div>
+                    <div class="control-value" id="v-angle-val">180°</div>
+                    <select id="v-angle" onchange="updateVideo()">
+                        <option value="90">90° (Crisp)</option>
+                        <option value="180" selected>180° (Standard)</option>
+                        <option value="270">270° (Dreamy)</option>
+                        <option value="360">360° (Max blur)</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <div class="control-label">Auto Shutter</div>
+                    <div class="control-value" id="v-shutter-val">1/48</div>
+                    <div style="font-size:0.7rem;color:var(--text-dim)">180° rule</div>
+                </div>
+                <div class="control-group">
+                    <div class="control-label">Resolution</div>
+                    <div class="control-value" id="v-res-val">4K</div>
+                    <select id="v-res" onchange="updateVideo()">
+                        <option value="1080">1080p HD</option>
+                        <option value="4k" selected>4K UHD</option>
+                        <option value="6k">6K</option>
+                        <option value="8k">8K</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <div class="control-label">Aspect Ratio</div>
+                    <div class="control-value" id="v-ar-val">16:9</div>
+                    <select id="v-ar" onchange="updateVideo()">
+                        <option value="16:9" selected>16:9 (Standard)</option>
+                        <option value="2.35:1">2.35:1 (Cinema)</option>
+                        <option value="9:16">9:16 (Vertical)</option>
+                        <option value="4:3">4:3 (Classic)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="hud-row">
+                <div class="control-group">
+                    <div class="control-label">Codec</div>
+                    <div class="control-value" id="v-codec-val" style="font-size:0.85rem">H.264 8-bit</div>
+                    <select id="v-codec" onchange="updateVideo()">
+                        <option value="h264-8">H.264 8-bit</option>
+                        <option value="h265-10">H.265 10-bit</option>
+                        <option value="prores-422">ProRes 422</option>
+                        <option value="prores-raw">ProRes RAW</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <div class="control-label">ND Filter</div>
+                    <div class="control-value" id="v-nd-val">ND0</div>
+                    <select id="v-nd" onchange="updateVideo()">
+                        <option value="0">ND0 (None)</option>
+                        <option value="2">ND2 (1 stop)</option>
+                        <option value="4">ND4 (2 stops)</option>
+                        <option value="8">ND8 (3 stops)</option>
+                        <option value="16">ND16 (4 stops)</option>
+                        <option value="64">ND64 (6 stops)</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <div class="control-label">Picture Profile</div>
+                    <div class="control-value" id="v-pp-val" style="font-size:0.85rem">PP1 (Standard)</div>
+                    <select id="v-pp" onchange="updateVideo()">
+                        <option value="1">PP1 (Standard)</option>
+                        <option value="3">PP3 (Neutral)</option>
+                        <option value="7">PP7 (Cine)</option>
+                        <option value="8">PP8 (S-Log3)</option>
+                        <option value="10">PP10 (HLG)</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <div class="control-label">Base ISO</div>
+                    <div class="control-value" id="v-baseiso-val">ISO 100</div>
+                    <div style="font-size:0.7rem;color:var(--text-dim)">Native for PP1</div>
+                </div>
+                <div class="control-group">
+                    <div class="control-label">Zebra Level</div>
+                    <div class="control-value" id="v-zebra-val" style="font-size:0.85rem">70% (Skin)</div>
+                    <select id="v-zebra-level" onchange="updateVideo()">
+                        <option value="70">70% IRE (Skin)</option>
+                        <option value="75">75% IRE</option>
+                        <option value="100">100% IRE (Clip)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- LIGHTING STUDIO -->
+    <div id="lighting-mode" class="mode-container">
+        <div id="lighting-wrapper">
+            <div id="lighting-canvas-container">
+                <canvas id="lighting-canvas"></canvas>
+                <div class="lighting-ui">
+                    <h3>💡 Light Setup</h3>
+                    <div id="light-list"></div>
+                    <button class="add-light-btn" onclick="addLight()">+ Add Light</button>
+                    
+                    <div class="lighting-presets">
+                        <h4>Lighting Presets</h4>
+                        <button class="preset-btn" onclick="applyPreset('rembrandt')">Rembrandt</button>
+                        <button class="preset-btn" onclick="applyPreset('butterfly')">Butterfly</button>
+                        <button class="preset-btn" onclick="applyPreset('split')">Split Light</button>
+                        <button class="preset-btn" onclick="applyPreset('loop')">Loop</button>
+                        <button class="preset-btn" onclick="applyPreset('sidelight')">Side Light</button>
+                        <button class="preset-btn" onclick="applyPreset('backlight')">Back Light</button>
+                        <button class="preset-btn" onclick="applyPreset('rimlight')">Rim Light</button>
+                        <button class="preset-btn" onclick="applyPreset('clamshell')">Clamshell</button>
+                        <button class="preset-btn" onclick="applyPreset('overhead')">Overhead</button>
+                        <button class="preset-btn" onclick="applyPreset('keyfill')">Key+Fill</button>
+                        <button class="preset-btn" onclick="applyPreset('threepoint')">3-Point</button>
+                    </div>
+                    
+                    <div style="margin-top:10px;font-size:0.75rem;color:var(--text-dim);line-height:1.4">
+                        💡 Click canvas to place<br>
+                        🖱️ Drag to reposition<br>
+                        🗑️ Double-click to remove
+                    </div>
+                </div>
+                <div class="info-panel" id="l-info" style="bottom:auto;top:15px;left:auto;right:15px;max-width:280px">
+                    <div class="info-title">Inverse-Square Law</div>
+                    <div class="info-value" id="l-info-text">Subject illumination: 0 fc</div>
+                </div>
+            </div>
+            
+            <div id="lighting-preview">
+                <div style="padding:12px;background:var(--bg-panel);border-bottom:1px solid #333">
+                    <div style="color:var(--accent);font-weight:bold;font-size:0.9rem">Live Preview</div>
+                    <div style="color:var(--text-dim);font-size:0.75rem">See lighting changes in real-time</div>
+                </div>
+                <div id="preview-image-container">
+                    <img id="preview-image" src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=800&q=80">
+                </div>
+                <div style="padding:12px;background:var(--bg-panel);border-top:1px solid #333">
+                    <div class="control-label" style="margin-bottom:6px">Preview Scene</div>
+                    <select id="preview-scene" onchange="changePreviewScene()" style="width:100%">
+                        <option value="portrait">Portrait</option>
+                        <option value="product">Product</option>
+                        <option value="interview">Interview</option>
+                        <option value="stilllife">Still Life</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        <div class="hud">
+            <div class="hud-row">
+                <div class="control-group">
+                    <div class="control-label">Selected Light Power</div>
+                    <div class="control-value" id="l-power-val">1/4</div>
+                    <input type="range" id="l-power" min="0" max="7" value="4">
+                </div>
+                <div class="control-group">
+                    <div class="control-label">Modifier</div>
+                    <div class="control-value" id="l-mod-val" style="font-size:0.85rem">Softbox 90cm</div>
+                    <select id="l-mod" onchange="updateLightingFromSliders()">
+                        <option value="bare">Bare Bulb (Hard)</option>
+                        <option value="softbox" selected>Softbox 90cm (Soft)</option>
+                        <option value="octa">Octabox 150cm (Very Soft)</option>
+                        <option value="grid">Softbox + Grid</option>
+                        <option value="beauty">Beauty Dish</option>
+                        <option value="umbrella">Umbrella</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <div class="control-label">Color Temperature</div>
+                    <div class="control-value" id="l-temp-val">5600K</div>
+                    <input type="range" id="l-temp" min="3200" max="8000" step="100" value="5600">
+                </div>
+                <div class="control-group">
+                    <div class="control-label">Subject Distance</div>
+                    <div class="control-value" id="l-dist-val">2.0m</div>
+                    <input type="range" id="l-dist" min="5" max="50" value="20">
+                </div>
+                <div class="control-group">
+                    <div class="control-label">Light Height</div>
+                    <div class="control-value" id="l-height-val">1.5m</div>
+                    <input type="range" id="l-height" min="5" max="30" value="15">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// ============ GLOBALS ============
+let currentMode = 'photo';
+const shutterStops = [1/8000,1/4000,1/2000,1/1000,1/500,1/250,1/125,1/60,1/30,1/15,1/8,1/4,1/2,1];
+const apertureStops = [1.4,2.0,2.8,4.0,5.6,8.0,11,16,22];
+const isoStops = [100,200,400,800,1600,3200,6400];
+const focalStops = [24,35,50,85,135,200];
+const powerStops = [1,1/2,1/4,1/8,1/16,1/32,1/64,1/128];
+
+const scenes = {
+    portrait: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=1200&q=80",
+    landscape: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&q=80",
+    night: "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1200&q=80",
+    tungsten: "https://images.unsplash.com/photo-1513694203232-719a280e022f?w=1200&q=80",
+    studio: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=1200&q=80"
+};
+
+const previewScenes = {
+    portrait: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=800&q=80",
+    product: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&q=80",
+    interview: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=800&q=80",
+    stilllife: "https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?w=800&q=80"
+};
+
+// ============ TAB SWITCHING ============
+function switchMode(mode) {
+    currentMode = mode;
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.mode-container').forEach(m => m.classList.remove('active'));
+    event.target.closest('.tab-btn').classList.add('active');
+    document.getElementById(mode + '-mode').classList.add('active');
+    
+    if (mode === 'lighting') {
+        setTimeout(() => {
+            initLightingCanvas();
+            updateLightingPreview();
+        }, 100);
+    }
+    if (mode === 'video') updateVideo();
+    updateSidebar();
+}
+
+// ============ PHOTO MODE ============
+let flashActive = false;
+let photoEls = {};
+let currentScene = 'portrait';
+
+function initPhoto() {
+    ['p-shutter','p-aperture','p-iso','p-focal','p-focus'].forEach(id => {
+        photoEls[id] = document.getElementById(id);
+        photoEls[id].addEventListener('input', updatePhoto);
+    });
+    updatePhoto();
+}
+
+function changeScene() {
+    currentScene = document.getElementById('p-scene').value;
+    const url = scenes[currentScene];
+    document.getElementById('p-background').src = url;
+    document.getElementById('p-subject').src = url;
+    const targetEVs = { portrait: 12, landscape: 13, night: 6, tungsten: 10, studio: 12 };
+    window.targetEV = targetEVs[currentScene] || 12;
+    updatePhoto();
+}
+
+function updatePhoto() {
+    const sI = +photoEls['p-shutter'].value;
+    const aI = +photoEls['p-aperture'].value;
+    const iI = +photoEls['p-iso'].value;
+    const fI = +photoEls['p-focal'].value;
+    const focusVal = +photoEls['p-focus'].value;
+    const meterMode = document.getElementById('p-meter').value;
+    const wb = document.getElementById('p-wb').value;
+    const pp = document.getElementById('p-pp').value;
+    
+    const shutter = shutterStops[sI];
+    const aperture = apertureStops[aI];
+    const iso = isoStops[iI];
+    const focal = focalStops[fI];
+    
+    document.getElementById('p-shutter-val').textContent = formatShutter(shutter);
+    document.getElementById('p-aperture-val').textContent = `f/${aperture}`;
+    document.getElementById('p-iso-val').textContent = iso;
+    document.getElementById('p-focal-val').textContent = `${focal}mm`;
+    
+    const meterNames = { evaluative: 'Evaluative', center: 'Center-Weighted', spot: 'Spot' };
+    document.getElementById('p-meter-val').textContent = meterNames[meterMode];
+    
+    const wbNames = { '5500': 'Daylight', '3200': 'Tungsten', '7000': 'Shade', '4000': 'Fluorescent', '6000': 'Cloudy' };
+    document.getElementById('p-wb-val').textContent = `${wbNames[wb]} (${wb}K)`;
+    
+    const ppNames = { '1': 'PP1 (Standard)', '7': 'PP7 (Cine)', '8': 'PP8 (S-Log3)' };
+    document.getElementById('p-pp-val').textContent = ppNames[pp];
+    
+    // Focus distance indicator
+    const focusIndicator = document.getElementById('focus-indicator');
+    if (focusVal < 30) {
+        focusIndicator.textContent = 'Focus: Background (Far)';
+        focusIndicator.classList.add('visible');
+    } else if (focusVal > 70) {
+        focusIndicator.textContent = 'Focus: Foreground (Close)';
+        focusIndicator.classList.add('visible');
+    } else {
+        focusIndicator.textContent = 'Focus: Subject (Mid-ground)';
+        focusIndicator.classList.add('visible');
+    }
+    
+    const meterOverlay = document.getElementById('metering-overlay');
+    const spotZone = document.getElementById('meter-spot-zone');
+    const centerZone = document.getElementById('meter-center-zone');
+    
+    meterOverlay.style.display = 'block';
+    spotZone.style.display = 'none';
+    centerZone.style.display = 'block';
+    
+    if (meterMode === 'spot') {
+        spotZone.style.display = 'block';
+        centerZone.style.display = 'none';
+    } else if (meterMode === 'center') {
+        centerZone.style.background = 'radial-gradient(circle, rgba(0,229,255,0.25) 0%, transparent 60%)';
+    } else {
+        centerZone.style.background = 'radial-gradient(circle, rgba(0,229,255,0.08) 0%, transparent 95%)';
+    }
+    
+    let meteringFactor = 0;
+    if (meterMode === 'spot') meteringFactor = -0.5;
+    else if (meterMode === 'center') meteringFactor = -0.2;
+    
+    const av = 2 * Math.log2(aperture);
+    const tv = Math.log2(1/shutter);
+    const sv = Math.log2(iso/100);
+    const targetEV = window.targetEV || 12;
+    const currentEV = av + tv - sv + meteringFactor;
+    const evDiff = currentEV - targetEV;
+    
+    const zoom = mapRange(fI, 0, 5, 1, 2.2);
+    document.getElementById('p-background').style.transform = `scale(${zoom})`;
+    document.getElementById('p-subject').style.transform = `scale(${zoom})`;
+    
+    // PARALLAX DEPTH OF FIELD - This is the key fix!
+    // focusVal: 0 = focus on background, 50 = focus on subject, 100 = focus on foreground
+    const backgroundBlur = Math.abs(focusVal - 0) / 100 * 20; // 0 to 20px blur
+    const subjectBlur = Math.abs(focusVal - 50) / 50 * 20; // 0 to 20px blur
+    
+    // Apply MUCH stronger blur based on aperture
+    const apertureMultiplier = mapRange(aI, 0, 8, 3, 0.3); // f/1.4 = 3x blur, f/22 = 0.3x blur
+    
+    document.getElementById('p-background').style.filter = `blur(${backgroundBlur * apertureMultiplier}px)`;
+    document.getElementById('p-subject').style.filter = `blur(${subjectBlur * apertureMultiplier}px)`;
+    
+    const clamped = Math.max(-4, Math.min(4, evDiff));
+    const brightness = Math.max(10, Math.min(400, Math.pow(2, -clamped) * 100));
+    const flashBoost = flashActive ? 2.5 : 1;
+    
+    const noiseOp = mapRange(iI, 0, 6, 0.02, 0.4);
+    document.getElementById('noise-matrix').setAttribute('values', `1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 ${noiseOp} 0`);
+    
+    // FIXED S-Log3 - Make it flat/gray, NOT black and white
+    let ppFilter = '';
+    if (pp === '8') {
+        ppFilter = 'contrast(0.5) saturate(0.3) brightness(1.15)'; // Flat, desaturated, but NOT B&W
+    } else if (pp === '7') {
+        ppFilter = 'contrast(0.9) saturate(0.85)';
+    }
+    
+    let wbFilter = '';
+    if (wb === '3200') wbFilter = 'sepia(0.4) saturate(1.3) hue-rotate(-10deg)';
+    else if (wb === '7000') wbFilter = 'saturate(1.1) hue-rotate(180deg) brightness(1.05)';
+    else if (wb === '4000') wbFilter = 'saturate(0.9) hue-rotate(60deg)';
+    
+    const bgFilter = `blur(${backgroundBlur * apertureMultiplier}px) brightness(${brightness}%) ${ppFilter} ${wbFilter} url(#noise-filter)`;
+    const subjectFilter = `blur(${subjectBlur * apertureMultiplier}px) brightness(${brightness * flashBoost}%) ${ppFilter} ${wbFilter} url(#noise-filter)`;
+    
+    document.getElementById('p-background').style.filter = bgFilter;
+    document.getElementById('p-subject').style.filter = subjectFilter;
+    
+    const needle = document.getElementById('p-needle');
+    const needlePos = mapRange(Math.max(-3, Math.min(3, evDiff)), -3, 3, 10, 90);
+    needle.style.left = `${needlePos}%`;
+    needle.style.background = Math.abs(evDiff) < 0.5 ? 'var(--success)' : 'var(--accent)';
+    
+    document.getElementById('p-sync').style.display = shutter < 1/250 ? 'block' : 'none';
+    
+    updateSidebar();
+}
+
+function takePhoto() {
+    const sI = +photoEls['p-shutter'].value;
+    const shutter = shutterStops[sI];
+    const top = document.getElementById('p-curtain-top');
+    const bot = document.getElementById('p-curtain-bottom');
+    const dur = Math.min(Math.max(1/shutter/10, 0.05), 1.5);
+    
+    top.style.transition = 'none'; bot.style.transition = 'none';
+    top.style.transform = 'translateY(0)'; bot.style.transform = 'translateY(0)';
+    void top.offsetWidth;
+    
+    top.style.transition = `transform ${dur*0.3}s ease-out`;
+    bot.style.transition = `transform ${dur*0.3}s ease-out`;
+    top.style.transform = 'translateY(-100%)'; bot.style.transform = 'translateY(100%)';
+    
+    setTimeout(() => {
+        top.style.transition = 'none'; bot.style.transition = 'none';
+        top.style.transform = 'translateY(0)'; bot.style.transform = 'translateY(0)';
+        void top.offsetWidth;
+        top.style.transition = 'transform 0.2s ease-out';
+        bot.style.transition = 'transform 0.2s ease-out';
+        top.style.transform = 'translateY(-100%)'; bot.style.transform = 'translateY(100%)';
+    }, dur*1000 + 50);
+}
+
+function toggleFlash() {
+    flashActive = !flashActive;
+    document.getElementById('p-flash-btn').classList.toggle('active', flashActive);
+    updatePhoto();
+}
+
+function toggleGrid() {
+    const grid = document.getElementById('p-grid');
+    const btn = document.getElementById('p-grid-btn');
+    const show = grid.style.display !== 'block';
+    grid.style.display = show ? 'block' : 'none';
+    btn.classList.toggle('active', show);
+}
+
+// ============ VIDEO MODE ============
+const videoEls = {};
+function initVideo() {
+    ['v-fps','v-angle','v-res','v-ar','v-codec','v-nd','v-pp','v-zebra-level'].forEach(id => {
+        videoEls[id] = document.getElementById(id);
+        videoEls[id].addEventListener('change', updateVideo);
+    });
+    updateVideo();
+}
+
+function updateVideo() {
+    const fps = +videoEls['v-fps'].value;
+    const angle = +videoEls['v-angle'].value;
+    const res = videoEls['v-res'].value;
+    const ar = videoEls['v-ar'].value;
+    const codec = videoEls['v-codec'].value;
+    const nd = +videoEls['v-nd'].value;
+    const pp = videoEls['v-pp'].value;
+    const zebraLevel = +videoEls['v-zebra-level'].value;
+    
+    const shutterSpeed = 1 / (fps * (360/angle));
+    const shutterText = shutterSpeed >= 1 ? `${shutterSpeed.toFixed(2)}s` : `1/${Math.round(1/shutterSpeed)}`;
+    
+    document.getElementById('v-fps-val').textContent = `${fps} fps`;
+    document.getElementById('v-angle-val').textContent = `${angle}°`;
+    document.getElementById('v-shutter-val').textContent = shutterText;
+    document.getElementById('v-res-val').textContent = res.toUpperCase();
+    document.getElementById('v-ar-val').textContent = ar;
+    document.getElementById('v-nd-val').textContent = nd === 0 ? 'ND0' : `ND${nd}`;
+    document.getElementById('v-zebra-val').textContent = `${zebraLevel}% IRE`;
+    
+    const codecNames = { 'h264-8': 'H.264 8-bit', 'h265-10': 'H.265 10-bit', 'prores-422': 'ProRes 422', 'prores-raw': 'ProRes RAW' };
+    document.getElementById('v-codec-val').textContent = codecNames[codec];
+    
+    const ppNames = { '1': 'PP1 (Standard)', '3': 'PP3 (Neutral)', '7': 'PP7 (Cine)', '8': 'PP8 (S-Log3)', '10': 'PP10 (HLG)' };
+    document.getElementById('v-pp-val').textContent = ppNames[pp];
+    
+    const baseISOs = { '1': 100, '3': 100, '7': 100, '8': 800, '10': 1600 };
+    document.getElementById('v-baseiso-val').textContent = `ISO ${baseISOs[pp]}`;
+    
+    document.getElementById('v-info-text').textContent = `${fps}fps · ${angle}° · ${res.toUpperCase()} ${ar} · ${codecNames[codec]}`;
+    
+    const ppFilters = {
+        '1': 'contrast(1) saturate(1)',
+        '3': 'contrast(0.95) saturate(0.95)',
+        '7': 'contrast(0.9) saturate(0.85)',
+        '8': 'contrast(0.5) saturate(0.3) brightness(1.15)', // Fixed: flat, not B&W
+        '10': 'contrast(0.7) saturate(0.7) brightness(1.1)'
+    };
+    const ndStops = Math.log2(nd || 1);
+    const ndBrightness = Math.pow(2, -ndStops) * 100;
+    
+    const filter = `${ppFilters[pp]} brightness(${ndBrightness}%)`;
+    document.getElementById('v-blur').style.filter = filter;
+    document.getElementById('v-sharp').style.filter = filter;
+    
+    if (document.getElementById('waveform-container').style.display === 'block') drawWaveform();
+    updateSidebar();
+}
+
+function toggleZebras() {
+    const overlay = document.getElementById('zebra-overlay');
+    const btn = document.getElementById('v-zebra-btn');
+    const show = overlay.style.display !== 'block';
+    overlay.style.display = show ? 'block' : 'none';
+    btn.classList.toggle('active', show);
+}
+
+function toggleWaveform() {
+    const container = document.getElementById('waveform-container');
+    const btn = document.getElementById('v-wave-btn');
+    const show = container.style.display !== 'block';
+    container.style.display = show ? 'block' : 'none';
+    btn.classList.toggle('active', show);
+    if (show) drawWaveform();
+}
+
+function drawWaveform() {
+    const canvas = document.getElementById('waveform-canvas');
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width, h = canvas.height;
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, w, h);
+    
+    ctx.strokeStyle = '#333';
+    ctx.lineWidth = 1;
+    for (let i = 0; i <= 100; i += 25) {
+        const y = h - (i/100) * h;
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+        ctx.fillStyle = '#666';
+        ctx.font = '9px sans-serif';
+        ctx.fillText(`${i}`, 2, y - 2);
+    }
+    
+    const bars = 50;
+    for (let i = 0; i < bars; i++) {
+        const x = (i/bars) * w;
+        const barW = w/bars - 1;
+        const base = 0.3 + 0.3 * Math.sin(i * 0.3);
+        const variation = Math.random() * 0.3;
+        const height = (base + variation) * h * 0.8;
+        const y = h - height;
+        ctx.fillStyle = '#00e5ff';
+        ctx.fillRect(x, y, barW, height);
+    }
+}
+
+let recording = false;
+function toggleRec() {
+    recording = !recording;
+    const btn = document.getElementById('v-rec-btn');
+    btn.classList.toggle('active', recording);
+    btn.textContent = recording ? '⏹ STOP' : '⏺ REC';
+    btn.style.background = recording ? 'var(--warning)' : '';
+    btn.style.color = recording ? 'white' : '';
+}
+
+// ============ LIGHTING STUDIO ============
+let lights = [];
+let selectedLight = 0;
+let lightingCanvas, lightingCtx;
+let dragging = null;
+let subjectPos = { x: 0, y: 0 };
+let currentPreviewScene = 'portrait';
+
+function initLightingCanvas() {
+    if (lightingCanvas) return;
+    
+    lightingCanvas = document.getElementById('lighting-canvas');
+    const container = document.getElementById('lighting-canvas-container');
+    lightingCanvas.width = container.clientWidth;
+    lightingCanvas.height = container.clientHeight;
+    lightingCtx = lightingCanvas.getContext('2d');
+    subjectPos = { x: lightingCanvas.width/2, y: lightingCanvas.height/2 };
+    
+    if (lights.length === 0) addLight();
+    
+    lightingCanvas.onmousedown = (e) => {
+        const rect = lightingCanvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        
+        let clicked = -1;
+        lights.forEach((l, i) => {
+            const d = Math.hypot(l.x - x, l.y - y);
+            if (d < 25) clicked = i;
+        });
+        
+        if (clicked >= 0) {
+            selectedLight = clicked;
+            dragging = clicked;
+            updateLightingUI();
+        } else {
+            lights.push({ x, y, power: 4, modifier: 'softbox', temp: 5600 });
+            selectedLight = lights.length - 1;
+            updateLightingUI();
+        }
+        drawLighting();
+        updateLightingPreview();
+    };
+    
+    lightingCanvas.onmousemove = (e) => {
+        if (dragging !== null) {
+            const rect = lightingCanvas.getBoundingClientRect();
+            lights[dragging].x = e.clientX - rect.left;
+            lights[dragging].y = e.clientY - rect.top;
+            drawLighting();
+            updateLightingPreview();
+            updateLightingInfo();
+        }
+    };
+    
+    lightingCanvas.onmouseup = () => { dragging = null; };
+    lightingCanvas.ondblclick = (e) => {
+        const rect = lightingCanvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        lights = lights.filter((l, i) => Math.hypot(l.x - x, l.y - y) >= 25);
+        if (selectedLight >= lights.length) selectedLight = Math.max(0, lights.length - 1);
+        updateLightingUI();
+        drawLighting();
+        updateLightingPreview();
+    };
+    
+    drawLighting();
+    updateLightingUI();
+    updateLightingPreview();
+}
+
+function addLight() {
+    if (!lightingCanvas) return;
+    lights.push({
+        x: lightingCanvas.width/2 + (Math.random() - 0.5) * 200,
+        y: lightingCanvas.height/2 + (Math.random() - 0.5) * 200,
+        power: 4, modifier: 'softbox', temp: 5600
+    });
+    selectedLight = lights.length - 1;
+    updateLightingUI();
+    drawLighting();
+    updateLightingPreview();
+}
+
+function formatPower(idx) {
+    const p = powerStops[idx];
+    return p >= 1 ? '1/1' : `1/${Math.round(1/p)}`;
+}
+
+function applyPreset(preset) {
+    if (!lightingCanvas) return;
+    lights = [];
+    const cx = lightingCanvas.width/2;
+    const cy = lightingCanvas.height/2;
+    
+    const presets = {
+        rembrandt: [{x: cx-150, y: cy-100, power: 5, modifier: 'softbox', temp: 5600}],
+        butterfly: [{x: cx, y: cy-180, power: 5, modifier: 'softbox', temp: 5600}],
+        split: [{x: cx-200, y: cy, power: 5, modifier: 'softbox', temp: 5600}],
+        loop: [{x: cx-120, y: cy-120, power: 5, modifier: 'softbox', temp: 5600}],
+        broad: [{x: cx+150, y: cy-80, power: 4, modifier: 'softbox', temp: 5600}],
+        short: [{x: cx-150, y: cy-80, power: 5, modifier: 'softbox', temp: 5600}],
+        clamshell: [
+            {x: cx, y: cy-150, power: 5, modifier: 'softbox', temp: 5600},
+            {x: cx, y: cy+100, power: 3, modifier: 'softbox', temp: 5600}
+        ],
+        overhead: [{x: cx, y: cy-200, power: 4, modifier: 'octa', temp: 5600}],
+        sidelight: [{x: cx-250, y: cy, power: 5, modifier: 'softbox', temp: 5600}],
+        backlight: [{x: cx, y: cy+200, power: 6, modifier: 'bare', temp: 5600}], // Stronger, bare bulb for silhouette
+        rimlight: [
+            {x: cx-150, y: cy+150, power: 4, modifier: 'grid', temp: 5600},
+            {x: cx+150, y: cy+150, power: 4, modifier: 'grid', temp: 5600}
+        ],
+        keyfill: [
+            {x: cx-150, y: cy-100, power: 5, modifier: 'softbox', temp: 5600},
+            {x: cx+150, y: cy-50, power: 3, modifier: 'softbox', temp: 5600}
+        ],
+        threepoint: [
+            {x: cx-150, y: cy-100, power: 5, modifier: 'softbox', temp: 5600},
+            {x: cx+150, y: cy-50, power: 3, modifier: 'softbox', temp: 5600},
+            {x: cx, y: cy+150, power: 4, modifier: 'grid', temp: 5600}
+        ]
+    };
+    
+    if (presets[preset]) {
+        lights = presets[preset].map(l => ({...l}));
+        selectedLight = lights.length > 0 ? 0 : -1;
+        updateLightingUI();
+        drawLighting();
+        updateLightingPreview();
+    }
+}
+
+function changePreviewScene() {
+    currentPreviewScene = document.getElementById('preview-scene').value;
+    document.getElementById('preview-image').src = previewScenes[currentPreviewScene];
+    updateLightingPreview();
+}
+
+function updateLightingUI() {
+    const list = document.getElementById('light-list');
+    if (!list) return;
+    list.innerHTML = '';
+    
+    if (lights.length === 0) {
+        list.innerHTML = '<div style="color:var(--text-dim);font-size:0.8rem;padding:10px;text-align:center">No lights yet. Click canvas to add one!</div>';
+        document.getElementById('l-power-val').textContent = '-';
+        document.getElementById('l-mod-val').textContent = '-';
+        document.getElementById('l-temp-val').textContent = '-';
+        return;
+    }
+    
+    lights.forEach((l, i) => {
+        const div = document.createElement('div');
+        div.className = 'light-item' + (i === selectedLight ? ' selected' : '');
+        div.onclick = () => { selectedLight = i; updateLightingUI(); drawLighting(); };
+        
+        const dist = Math.hypot(l.x - subjectPos.x, l.y - subjectPos.y) / 50;
+        const intensity = (powerStops[l.power] * 1000) / (dist * dist || 1);
+        
+        div.innerHTML = `
+            <div class="light-name">💡 Light ${i+1}</div>
+            <div class="light-info">${l.modifier} · ${formatPower(l.power)} · ${l.temp}K<br>
+            Distance: ${dist.toFixed(1)}m · ${intensity.toFixed(0)} fc</div>
+        `;
+        list.appendChild(div);
+    });
+    
+    if (lights[selectedLight]) {
+        const l = lights[selectedLight];
+        document.getElementById('l-power').value = l.power;
+        document.getElementById('l-mod').value = l.modifier;
+        document.getElementById('l-temp').value = l.temp;
+        document.getElementById('l-power-val').textContent = formatPower(l.power);
+        const modSelect = document.getElementById('l-mod');
+        document.getElementById('l-mod-val').textContent = modSelect.options[modSelect.selectedIndex]?.text || l.modifier;
+        document.getElementById('l-temp-val').textContent = `${l.temp}K`;
+    }
+}
+
+function updateLightingFromSliders() {
+    if (!lights[selectedLight]) return;
+    lights[selectedLight].power = +document.getElementById('l-power').value;
+    lights[selectedLight].modifier = document.getElementById('l-mod').value;
+    lights[selectedLight].temp = +document.getElementById('l-temp').value;
+    
+    document.getElementById('l-power-val').textContent = formatPower(+document.getElementById('l-power').value);
+    document.getElementById('l-mod-val').textContent = document.getElementById('l-mod').options[document.getElementById('l-mod').selectedIndex]?.text || 'Softbox';
+    document.getElementById('l-temp-val').textContent = `${document.getElementById('l-temp').value}K`;
+    document.getElementById('l-dist-val').textContent = `${(document.getElementById('l-dist').value/10).toFixed(1)}m`;
+    document.getElementById('l-height-val').textContent = `${(document.getElementById('l-height').value/10).toFixed(1)}m`;
+    
+    drawLighting();
+    updateLightingPreview();
+    updateLightingInfo();
+}
+
+['l-power','l-mod','l-temp','l-dist','l-height'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', updateLightingFromSliders);
+});
+
+function updateLightingInfo() {
+    let totalIntensity = 0;
+    lights.forEach(l => {
+        const dist = Math.hypot(l.x - subjectPos.x, l.y - subjectPos.y) / 50;
+        totalIntensity += (powerStops[l.power] * 1000) / (dist * dist || 1);
+    });
+    document.getElementById('l-info-text').textContent = `Total: ${totalIntensity.toFixed(1)} fc (${lights.length} light${lights.length !== 1 ? 's' : ''})`;
+}
+
+function updateLightingPreview() {
+    const img = document.getElementById('preview-image');
+    if (!img || lights.length === 0) return;
+    
+    let totalIntensity = 0;
+    let avgTemp = 0;
+    let isBacklightOnly = false;
+    
+    lights.forEach(l => {
+        const dist = Math.hypot(l.x - subjectPos.x, l.y - subjectPos.y) / 50;
+        const intensity = (powerStops[l.power] * 1000) / (dist * dist || 1);
+        totalIntensity += intensity;
+        avgTemp += l.temp * intensity;
+        
+        // Check if light is behind subject
+        if (l.y > subjectPos.y + 50) isBacklightOnly = true;
+    });
+    
+    avgTemp /= totalIntensity || 1;
+    const brightness = 50 + (totalIntensity / 50);
+    const contrast = 0.8 + (totalIntensity / 200);
+    
+    let tempFilter = '';
+    if (avgTemp < 4000) tempFilter = 'sepia(0.3) saturate(1.2)';
+    else if (avgTemp > 6500) tempFilter = 'saturate(1.1) hue-rotate(180deg) brightness(1.05)';
+    
+    // SILHOUETTE EFFECT for backlight
+    if (isBacklightOnly && lights.length === 1) {
+        // Make subject very dark (silhouette) with bright rim
+        const filter = `brightness(30%) contrast(1.5) ${tempFilter}`;
+        img.style.filter = filter;
+    } else {
+        const filter = `brightness(${Math.min(brightness, 200)}%) contrast(${Math.min(contrast, 1.5)}) ${tempFilter}`;
+        img.style.filter = filter;
+    }
+}
+
+function drawLighting() {
+    if (!lightingCtx) return;
+    const ctx = lightingCtx;
+    const w = lightingCanvas.width;
+    const h = lightingCanvas.height;
+    
+    ctx.fillStyle = '#1a1a1a';
+    ctx.fillRect(0, 0, w, h);
+    
+    ctx.strokeStyle = '#2a2a2a';
+    ctx.lineWidth = 1;
+    for (let x = 0; x < w; x += 40) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
+    for (let y = 0; y < h; y += 40) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
+    
+    ctx.strokeStyle = 'rgba(0,229,255,0.1)';
+    for (let r = 50; r < Math.max(w, h); r += 50) {
+        ctx.beginPath(); ctx.arc(subjectPos.x, subjectPos.y, r, 0, Math.PI * 2); ctx.stroke();
+        ctx.fillStyle = 'rgba(0,229,255,0.3)'; ctx.font = '10px sans-serif';
+        ctx.fillText(`${(r/50).toFixed(1)}m`, subjectPos.x + r + 3, subjectPos.y);
+    }
+    
+    lights.forEach((l, i) => {
+        const dist = Math.hypot(l.x - subjectPos.x, l.y - subjectPos.y);
+        const angle = Math.atan2(subjectPos.y - l.y, subjectPos.x - l.x);
+        const spreads = { bare: 0.3, softbox: 0.8, octa: 1.2, grid: 0.3, beauty: 0.6, umbrella: 1.0 };
+        const spread = spreads[l.modifier] || 0.8;
+        const coneLength = Math.min(dist * 1.5, 400);
+        const intensity = powerStops[l.power];
+        const alpha = 0.15 * intensity * 4;
+        
+        const grad = ctx.createRadialGradient(l.x, l.y, 0, l.x, l.y, coneLength);
+        const tempColor = l.temp < 4500 ? `rgba(255,180,100,${alpha})` : l.temp > 6500 ? `rgba(150,200,255,${alpha})` : `rgba(255,255,240,${alpha})`;
+        grad.addColorStop(0, tempColor);
+        grad.addColorStop(1, 'rgba(0,0,0,0)');
+        
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.moveTo(l.x, l.y);
+        ctx.arc(l.x, l.y, coneLength, angle - spread/2, angle + spread/2);
+        ctx.closePath();
+        ctx.fill();
+        
+        ctx.strokeStyle = `rgba(255,255,200,${0.3 * intensity * 4})`;
+        ctx.lineWidth = 1;
+        for (let a = -spread/2; a <= spread/2; a += spread/4) {
+            ctx.beginPath(); ctx.moveTo(l.x, l.y);
+            ctx.lineTo(l.x + Math.cos(angle + a) * coneLength, l.y + Math.sin(angle + a) * coneLength);
+            ctx.stroke();
+        }
+    });
+    
+    lights.forEach((l, i) => {
+        const isSelected = i === selectedLight;
+        ctx.fillStyle = isSelected ? '#00e5ff' : '#666';
+        ctx.strokeStyle = isSelected ? '#00e5ff' : '#888';
+        ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.arc(l.x, l.y, 15, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = '#fff'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
+        ctx.fillText(`L${i+1}`, l.x, l.y + 4);
+    });
+    
+    ctx.fillStyle = '#ff5252'; ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(subjectPos.x, subjectPos.y, 20, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#fff'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('SUBJECT', subjectPos.x, subjectPos.y + 38);
+    
+    let totalIllum = 0;
+    lights.forEach(l => {
+        const dist = Math.hypot(l.x - subjectPos.x, l.y - subjectPos.y) / 50;
+        totalIllum += (powerStops[l.power] * 1000) / (dist * dist || 1);
+    });
+    
+    const heatRadius = Math.min(totalIllum / 10, 50);
+    const heatGrad = ctx.createRadialGradient(subjectPos.x, subjectPos.y, 0, subjectPos.x, subjectPos.y, heatRadius);
+    heatGrad.addColorStop(0, `rgba(255,255,100,0.6)`);
+    heatGrad.addColorStop(1, 'rgba(255,255,100,0)');
+    ctx.fillStyle = heatGrad;
+    ctx.beginPath(); ctx.arc(subjectPos.x, subjectPos.y, heatRadius, 0, Math.PI * 2); ctx.fill();
+}
+
+// ============ SIDEBAR ============
+const tips = {
+    photo: {
+        iso: {
+            100: { title: 'ISO 100 - Best Quality', content: 'Use for bright sunny days, studio lighting, or tripods. Gives the cleanest image with zero noise. Perfect for landscapes.' },
+            400: { title: 'ISO 400 - Versatile', content: 'Perfect for indoor shooting with windows, or outdoor shooting in heavy shade. Good balance of quality and light sensitivity.' },
+            800: { title: 'ISO 800 - Low Light', content: 'Use for indoor events, or when shooting S-Log3 (PP8) which requires more light. Some noise appears but still very usable.' },
+            3200: { title: 'ISO 3200 - Very Low Light', content: 'For very dark environments or capturing fast action in dim light. Expect noticeable grain but better than a blurry shot.' }
+        },
+        shutter: {
+            fast: { title: 'Fast Shutter (1/500s+)', content: 'FREEZES ACTION! Use for: Sports, wildlife, running children. Essential when using telephoto lenses to avoid camera shake.' },
+            medium: { title: 'Medium Shutter (1/125s)', content: 'GENERAL PURPOSE. Safe for handheld portraits, street photography, and everyday shooting.' },
+            slow: { title: 'Slow Shutter (1/30s)', content: 'MOTION BLUR & LOW LIGHT. Use for creative motion blur (waterfalls) or low light. Below 1/60s, use a tripod!' }
+        },
+        aperture: {
+            wide: { title: 'Wide Aperture (f/1.4-f/2.8)', content: 'SHALLOW DEPTH OF FIELD! Use for: Portraits with creamy bokeh, isolating subjects from busy backgrounds. Focus must be precise!' },
+            medium: { title: 'Medium Aperture (f/4-f/8)', content: 'SWEET SPOT! Most lenses are sharpest here. Perfect for: Group photos, street photography, general shooting.' },
+            narrow: { title: 'Narrow Aperture (f/11-f/22)', content: 'MAXIMUM DEPTH OF FIELD! Use for: Landscapes, architecture where you want everything from front to back in sharp focus.' }
+        },
+        focus: {
+            foreground: { title: 'Focus: Foreground', content: 'When you focus close, the background becomes blurry (bokeh). This isolates your subject and draws attention to the front of the scene.' },
+            subject: { title: 'Focus: Subject (Mid-ground)', content: 'Focusing on your subject keeps them sharp while both foreground and background blur. This is the most common portrait technique.' },
+            background: { title: 'Focus: Background', content: 'When you focus far away, foreground objects become blurry. Use this for environmental portraits where the location is important.' }
+        },
+        metering: {
+            evaluative: { title: 'Evaluative/Matrix Metering', content: 'Measures light across the entire frame. Best for evenly lit scenes. The camera averages everything to find a balanced exposure.' },
+            center: { title: 'Center-Weighted Metering', content: 'Prioritizes the center 60-80% of the frame. Classic portrait metering mode. Good when subject is centered.' },
+            spot: { title: 'Spot Metering (5%)', content: 'Measures only the very center (5%) of the frame. Essential for precise exposure of specific tones. Use on skin for portraits, or the moon in night skies.' }
+        },
+        flash: { title: 'Flash Exposure', content: 'Flash exposes the SUBJECT. Shutter speed exposes the BACKGROUND. This is why you can darken the sky while keeping your subject perfectly lit!' },
+        pp: {
+            '1': { title: 'PP1 (Standard)', content: 'Standard contrast and saturation. What you see is what you get. Great for JPEGs and quick delivery.' },
+            '7': { title: 'PP7 (Cine)', content: 'Cinematone. Slightly reduced contrast and saturation for a more film-like, cinematic look straight out of camera.' },
+            '8': { title: 'PP8 (S-Log3)', content: 'Maximum Dynamic Range. Looks flat and desaturated (NOT black & white). MUST be color graded in post-production. Requires ISO 800+.' }
+        }
+    },
+    video: {
+        shutterAngle: { title: '180° Shutter Rule', content: 'Shutter speed = 1/(2×fps). At 24fps use 1/48s, at 60fps use 1/120s. This gives natural motion blur matching human vision.' },
+        nd: { title: 'ND Filters', content: 'Neutral Density filters reduce light WITHOUT changing aperture or shutter. Essential for maintaining 180° rule in bright conditions. Each stop halves the light.' },
+        zebra: { title: 'Zebras', content: 'Striped overlay shows overexposed areas. 70% IRE = proper skin tone exposure. 100% IRE = clipped highlights (lost detail).' },
+        waveform: { title: 'Waveform Monitor', content: 'Graph showing brightness distribution across the frame. Y-axis = IRE (0-100). Keep skin tones around 60-70 IRE. Never let highlights exceed 100.' },
+        codec: { title: 'Codec & Bit Depth', content: 'H.264 = small files, 8-bit. H.265 = better compression, 10-bit. ProRes = large files, edit-friendly. 10-bit gives 1024 shades per channel vs 256 in 8-bit.' }
+    },
+    lighting: {
+        inverse: { title: 'Inverse-Square Law', content: 'Light intensity drops with the SQUARE of distance. Double the distance = 1/4 the light. This is why moving a light from 1m to 2m loses 2 stops!' },
+        modifiers: {
+            bare: 'Bare bulb: Hard, directional light with sharp shadows. Like direct sunlight.',
+            softbox: 'Softbox: Large diffused source. Soft shadows, flattering for portraits. Size relative to subject determines softness.',
+            octa: 'Octabox: Round softbox. Creates circular catchlights in eyes. Very soft, even light.',
+            grid: 'Softbox + Grid: Controls spill. Light goes only where pointed. Great for dramatic, controlled lighting.',
+            beauty: 'Beauty Dish: Semi-hard light. Popular for fashion/beauty. Sharp but not as harsh as bare bulb.',
+            umbrella: 'Umbrella: Quick, broad light. Less control than softbox but faster to set up.'
+        },
+        presets: {
+            rembrandt: { title: 'Rembrandt Lighting', content: 'Named after the painter. Creates a small triangle of light on the shadowed cheek. Dramatic and artistic. Position light at 45° angle and slightly above subject.' },
+            butterfly: { title: 'Butterfly Lighting', content: 'Light directly above and in front of subject. Creates a butterfly-shaped shadow under the nose. Flattering for glamour and beauty shots. Minimizes wrinkles.' },
+            split: { title: 'Split Lighting', content: 'Light from exactly one side. Half the face is lit, half is in shadow. Very dramatic and mysterious. Great for character portraits.' },
+            loop: { title: 'Loop Lighting', content: 'Slightly off-axis from camera. Creates a small loop shadow from the nose. The most common and flattering portrait lighting. Works for almost everyone.' },
+            sidelight: { title: 'Side Light', content: 'Light from 90° to the side. Creates strong contrast and texture. Great for emphasizing facial features, wrinkles, and character. Very dramatic.' },
+            backlight: { title: 'Back Light (Silhouette)', content: 'Light from behind the subject. Creates a silhouette effect where the subject is dark against a bright background. Use for dramatic, mysterious, or artistic shots. The subject becomes a dark shape.' },
+            rimlight: { title: 'Rim Light', content: 'Lights from behind at angles. Creates a bright outline (rim) around the subject, separating them from the background. Great for dark backgrounds and adding depth.' },
+            clamshell: { title: 'Clamshell Lighting', content: 'Two lights: one above, one below the subject. Minimizes shadows under eyes and chin. Perfect for beauty and fashion. Creates even, flattering light.' },
+            overhead: { title: 'Overhead Lighting', content: 'Light from directly above. Creates shadows under eyes, nose, and chin. Can be dramatic or unflattering depending on use. Common in interrogations and horror films.' },
+            keyfill: { title: 'Key + Fill', content: 'Two-light setup: Key light (main, stronger) and Fill light (softer, fills shadows). The foundation of most portrait and interview lighting.' },
+            threepoint: { title: '3-Point Lighting', content: 'The classic setup: Key (main light), Fill (reduces shadows), and Back/Rim (separates subject from background). Used in interviews, films, and professional portraits.' }
+        }
+    }
+};
+
+function updateSidebar() {
+    const content = document.getElementById('sidebar-content');
+    let html = '';
+    
+    if (currentMode === 'photo') {
+        const sI = +photoEls['p-shutter'].value;
+        const aI = +photoEls['p-aperture'].value;
+        const iI = +photoEls['p-iso'].value;
+        const focusVal = +photoEls['p-focus'].value;
+        const meterMode = document.getElementById('p-meter').value;
+        const pp = document.getElementById('p-pp').value;
+        const shutter = shutterStops[sI];
+        const aperture = apertureStops[aI];
+        const iso = isoStops[iI];
+        
+        const closestIso = isoStops.reduce((prev, curr) => Math.abs(curr - iso) < Math.abs(prev - iso) ? curr : prev);
+        if (tips.photo.iso[closestIso]) html += `<div class="tip-card"><span class="badge">ISO ${closestIso}</span><h3>${tips.photo.iso[closestIso].title}</h3><p>${tips.photo.iso[closestIso].content}</p></div>`;
+        
+        let sCat = shutter >= 1/500 ? 'fast' : shutter <= 1/60 ? 'slow' : 'medium';
+        html += `<div class="tip-card"><span class="badge">${formatShutter(shutter)}</span><h3>${tips.photo.shutter[sCat].title}</h3><p>${tips.photo.shutter[sCat].content}</p></div>`;
+        
+        let aCat = aperture <= 2.8 ? 'wide' : aperture >= 11 ? 'narrow' : 'medium';
+        html += `<div class="tip-card"><span class="badge">f/${aperture}</span><h3>${tips.photo.aperture[aCat].title}</h3><p>${tips.photo.aperture[aCat].content}</p></div>`;
+        
+        // Focus distance tip
+        let focusCat = focusVal < 30 ? 'background' : focusVal > 70 ? 'foreground' : 'subject';
+        html += `<div class="tip-card"><span class="badge">Focus</span><h3>${tips.photo.focus[focusCat].title}</h3><p>${tips.photo.focus[focusCat].content}</p></div>`;
+        
+        html += `<div class="tip-card"><span class="badge">Metering</span><h3>${tips.photo.metering[meterMode].title}</h3><p>${tips.photo.metering[meterMode].content}</p></div>`;
+        
+        if (tips.photo.pp[pp]) html += `<div class="tip-card"><span class="badge">PP${pp}</span><h3>${tips.photo.pp[pp].title}</h3><p>${tips.photo.pp[pp].content}</p></div>`;
+        if (flashActive) html += `<div class="tip-card"><span class="badge">⚡ Flash</span><h3>${tips.photo.flash.title}</h3><p>${tips.photo.flash.content}</p></div>`;
+        if (shutter < 1/250) html += `<div class="tip-card"><span class="badge">Sync Speed</span><h3>Flash Sync Limit</h3><p>Your camera's max sync is 1/250s. Faster speeds require HSS (High-Speed Sync), which reduces flash power.</p></div>`;
+    }
+    else if (currentMode === 'video') {
+        const angle = +videoEls['v-angle'].value;
+        const fps = +videoEls['v-fps'].value;
+        const nd = +videoEls['v-nd'].value;
+        const codec = videoEls['v-codec'].value;
+        
+        html += `<div class="tip-card"><span class="badge">Shutter Angle</span><h3>${tips.video.shutterAngle.title}</h3><p>${tips.video.shutterAngle.content}<br><br>Current: ${angle}° at ${fps}fps = ${document.getElementById('v-shutter-val').textContent}</p></div>`;
+        if (nd > 0) html += `<div class="tip-card"><span class="badge">ND Filter</span><h3>${tips.video.nd.title}</h3><p>${tips.video.nd.content}<br><br>ND${nd} = ${Math.log2(nd)} stops of light reduction.</p></div>`;
+        const zebraLevel = +videoEls['v-zebra-level'].value;
+        html += `<div class="tip-card"><span class="badge">Zebras</span><h3>${tips.video.zebra.title}</h3><p>${tips.video.zebra.content}<br><br>Current level: ${zebraLevel}% IRE</p></div>`;
+        html += `<div class="tip-card"><span class="badge">Codec</span><h3>${tips.video.codec.title}</h3><p>${tips.video.codec.content}</p></div>`;
+    }
+    else if (currentMode === 'lighting') {
+        html += `<div class="tip-card"><span class="badge">Physics</span><h3>${tips.lighting.inverse.title}</h3><p>${tips.lighting.inverse.content}</p></div>`;
+        if (lights[selectedLight]) {
+            const mod = lights[selectedLight].modifier;
+            html += `<div class="tip-card"><span class="badge">Modifier</span><h3>${mod.charAt(0).toUpperCase() + mod.slice(1)}</h3><p>${tips.lighting.modifiers[mod]}</p></div>`;
+        }
+        html += `<div class="tip-card"><span class="badge">Tip</span><h3>Light-to-Subject Ratio</h3><p>Move lights closer for softer light (larger relative to subject). Move farther for harder light. The inverse-square law means small distance changes have big exposure impacts!</p></div>`;
+    }
+    
+    content.innerHTML = html || '<div class="tip-card"><span class="badge">Info</span><h3>No tips yet</h3><p>Adjust settings to see contextual tips here.</p></div>';
+}
+
+function formatShutter(s) { return s >= 1 ? `${s}s` : `1/${Math.round(1/s)}`; }
+function mapRange(v, iMin, iMax, oMin, oMax) { return oMin + (oMax - oMin) * ((v - iMin) / (iMax - iMin)); }
+function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('collapsed');
+    document.querySelector('.sidebar-toggle').textContent = document.getElementById('sidebar').classList.contains('collapsed') ? '▶' : '◀';
+}
+
+window.targetEV = 12;
+initPhoto();
+initVideo();
+updateSidebar();
+
+window.addEventListener('resize', () => {
+    if (currentMode === 'lighting' && lightingCanvas) {
+        const container = document.getElementById('lighting-canvas-container');
+        lightingCanvas.width = container.clientWidth;
+        lightingCanvas.height = container.clientHeight;
+        subjectPos = { x: lightingCanvas.width/2, y: lightingCanvas.height/2 };
+        drawLighting();
+        updateLightingPreview();
+    }
+});
+</script>
+</body>
+</html>
